@@ -89,7 +89,7 @@ export const createBaseSchemaGenerator = <Types, Models>(
       return record
     }, {}) as any
 
-    const getModel = (modelName: keyof Models) => record[modelName]
+    const getModel = (modelName: keyof Models): ExtendedModel<Types, Models> => record[modelName]
     const typeMapper = applyTypeMapper(configuration.typeMapper, getModel)
     // 2. create field lists
     modelNames.forEach(name => {
@@ -97,7 +97,7 @@ export const createBaseSchemaGenerator = <Types, Models>(
 
       model.dataTypes = {
         type: model.fields.reduce((dataFields, field) => {
-          const type = typeMapper(field)
+          const type = typeMapper(field, model)
           dataFields[field.name] = { type: field.nonNull ? new GraphQLNonNull(type) : type }
           return dataFields
         }, {}),
