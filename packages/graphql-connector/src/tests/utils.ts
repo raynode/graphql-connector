@@ -19,7 +19,8 @@ import { createSchema } from 'utils'
 export { printSchema }
 
 export type Types = 'int' | 'string'
-export type Models = 'Sample' | 'Other'
+
+export type Models = Record<'Sample' | 'Other', any>
 
 export const basicTypeMapper: TypeMapper<Types, Models> = attribute =>
   ({
