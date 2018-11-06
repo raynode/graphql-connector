@@ -37,6 +37,7 @@
   "homepage": "https://github.com/raynode/graphql-connector/src/graphql-connector-sequelize#readme",
   "dependencies": {},
   "devDependencies": {
+    "@raynode/graphql-connector": "0.0.1",
     "@types/jest": "^23.3.9",
     "husky": "^1.1.2",
     "jest": "^23.5.0",
