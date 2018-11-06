@@ -1,9 +1,9 @@
-import { ListType, NodeType, PageInputType, PageType } from 'generic-types'
-import { AnyModel, ExtendedModel, Model } from 'model'
-import { GeneratedModelMapper } from 'model-mapper'
-import { defaultNamingStrategy, NamingStrategy } from 'naming-strategy'
-import { applyTypeMapper, TypeMapper } from 'type-converter'
-import { RecordOf } from 'utils'
+import { ListType, NodeType, PageInputType, PageType } from './generic-types'
+import { AnyModel, ExtendedModel, Model } from './model'
+import { GeneratedModelMapper } from './model-mapper'
+import { defaultNamingStrategy, NamingStrategy } from './naming-strategy'
+import { applyTypeMapper, TypeMapper } from './type-converter'
+import { RecordOf } from './utils'
 
 import {
   GraphQLID,

@@ -1,4 +1,4 @@
-import { BaseSchema } from 'base-schema-generator'
+import { BaseSchema } from './base-schema-generator'
 import { GraphQLObjectType, GraphQLSchema, printSchema } from 'graphql'
 import { mapValues } from 'lodash'
 

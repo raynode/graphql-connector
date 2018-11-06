@@ -1,5 +1,5 @@
 import { GraphQLList, GraphQLNonNull, GraphQLType } from 'graphql'
-import { AnyModel, Attribute, BaseField, ExtendedModel, isAssociationField } from 'model'
+import { AnyModel, Attribute, BaseField, ExtendedModel, isAssociationField } from './model'
 
 export type TypeMapper<Types, Models> = (type: Attribute<Types>) => GraphQLType
 

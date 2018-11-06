@@ -6,7 +6,7 @@ import {
   PartialAssociations,
   PartialAttribute,
   PartialAttributes,
-} from 'model'
+} from './model'
 
 export type ModelMapperFn<Types, Models> = <Key extends keyof Models>(
   model: Models[Key],

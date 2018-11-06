@@ -1,0 +1,69 @@
+{
+  "name": "@raynode/graphql-connector",
+<<<<<<< HEAD
+  "version": "1.0.0",
+=======
+  "version": "0.2.0",
+>>>>>>> master
+  "description": "",
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
+  "scripts": {
+    "prepublish": "npm run build",
+    "dev": "npm run test:watch",
+    "build": "rimraf lib && tsc --p ./tsconfig.prod.json",
+    "test": "npm run test:coverage",
+    "test-only": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/raynode/graphql-connector.git"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "src/**/*.{ts,tsx}": [
+      "tslint --fix",
+      "prettier --write",
+      "git add"
+    ]
+  },
+  "files": [
+    "lib/*"
+  ],
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/raynode/graphql-connector/issues"
+  },
+  "homepage": "https://github.com/raynode/graphql-connector/src/graphql-connector#readme",
+  "dependencies": {
+    "@types/graphql": "^0.13.4",
+    "@types/inflection": "^1.5.28",
+    "@types/lodash": "^4.14.116",
+    "graphql": "^0.13.2",
+    "inflection": "^1.12.0",
+    "lodash": "^4.17.10"
+  },
+  "devDependencies": {
+    "@types/jest": "^23.3.9",
+    "husky": "^1.1.2",
+    "jest": "^23.5.0",
+    "lint-staged": "^7.3.0",
+    "prettier": "^1.14.3",
+    "rimraf": "^2.6.2",
+    "sequelize-cli": "^4.1.1",
+    "ts-jest": "^23.10.4",
+    "ts-node": "^7.0.1",
+    "tsconfig-paths": "^3.5.0",
+    "tslint": "^5.11.0",
+    "typescript": "^3.1.3"
+  },
+  "gitHead": "150af815b281bbde4114efc0a0eb5bc608f9cc2d"
+}

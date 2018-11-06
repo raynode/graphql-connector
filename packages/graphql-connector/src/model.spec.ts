@@ -1,5 +1,5 @@
-import * as Model from 'model'
-import { Models, Types } from 'tests/utils'
+import * as Model from './model'
+import { Models, Types } from './tests/utils'
 
 const creator = Model.modelCreator<Types, Models>()
 
