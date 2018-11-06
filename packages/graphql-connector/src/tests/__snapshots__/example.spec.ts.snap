@@ -1,0 +1,90 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should handle the example code: Schema 1`] = `
+"type Comment implements Node {
+  msg: String
+  id: ID
+  createdAt: Date
+  lastUpdate: Date
+  commentor: User
+  Post: Post
+}
+
+type Comments implements List {
+  nodes: [Comment!]!
+  page: Page!
+}
+
+\\"\\"\\"
+A special custom Scalar type for Dates that converts to a ISO formatted string 
+\\"\\"\\"
+scalar Date
+
+interface List {
+  nodes: [Node!]!
+  page: Page!
+}
+
+type Mutation {
+  createUser: User
+  updateUser: User
+  deleteUsers: Users
+  createPost: Post
+  updatePost: Post
+  deletePosts: Posts
+  createComment: Comment
+  updateComment: Comment
+  deleteComments: Comments
+}
+
+interface Node {
+  id: ID
+}
+
+type Page {
+  limit: Int
+  offset: Int
+}
+
+type Post implements Node {
+  title: String
+  text: String
+  upvotes: Int
+  id: ID
+  createdAt: Date
+  lastUpdate: Date
+  author: User
+  Comment: Comments
+}
+
+type Posts implements List {
+  nodes: [Post!]!
+  page: Page!
+}
+
+type Query {
+  User: User
+  Users: Users
+  Post: Post
+  Posts: Posts
+  Comment: Comment
+  Comments: Comments
+}
+
+type User implements Node {
+  name: String
+  email: String
+  password: String
+  id: ID
+  createdAt: Date
+  lastUpdate: Date
+  Post: Posts
+  Comment: Comments
+}
+
+type Users implements List {
+  nodes: [User!]!
+  page: Page!
+}
+"
+`;
