@@ -72,6 +72,8 @@ export const rangeSubTypeToGraphQL = (subtype: RangeSubTypes) => {
 }
 
 export const typeMapper: TypeMapper<DataTypes, any> = (attribute, model) => {
+  const sequelizeType = attribute.type
+
   if (!guards.isAbstract(sequelizeType)) {
     console.error(sequelizeType)
     throw new Error('Input is not of type abstract-sequelize-type')
@@ -79,15 +81,15 @@ export const typeMapper: TypeMapper<DataTypes, any> = (attribute, model) => {
 
   if (guards.isScalarType(sequelizeType)) return toGraphQLScalar(sequelizeType)
 
-  if (guards.isArray(sequelizeType)) return new GraphQLList(typeMapper(sequelizeType.type))
+  if (guards.isArray(sequelizeType)) return new GraphQLList(toGraphQLScalar(sequelizeType.type))
 
   if (guards.isEnum(sequelizeType)) {
     const values = mapValues(sequelizeType.values.map(sanitizeEnumValue), value => ({ value }))
-    return new GraphQLEnumType({ name: `${model.name}${capitalize(attribute.name)}EnumType`, values })
+    return new GraphQLEnumType({ name: `${model.name.toString()}${capitalize(attribute.name)}EnumType`, values })
   }
 
   if (guards.isVirtual(sequelizeType))
-    return sequelizeType.returnType ? typeMapper(sequelizeType.returnType) : GraphQLString
+    return sequelizeType.returnType ? toGraphQLScalar(sequelizeType.returnType) : GraphQLString
 
   if (guards.isJson(sequelizeType)) return JSONType
 
