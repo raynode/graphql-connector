@@ -1,6 +1,6 @@
 {
   "name": "@raynode/graphql-connector-sequelize",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -42,7 +42,7 @@
     "sequelize": "^4.41.0"
   },
   "devDependencies": {
-    "@raynode/graphql-connector": "^0.2.3",
+    "@raynode/graphql-connector": "^0.2.4",
     "@types/jest": "^23.3.9",
     "husky": "^1.1.2",
     "jest": "^23.5.0",
