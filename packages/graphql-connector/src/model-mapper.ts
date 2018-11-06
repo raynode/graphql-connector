@@ -6,12 +6,12 @@ import {
   PartialAssociations,
   PartialAttribute,
   PartialAttributes,
-} from 'model'
+} from './model'
 
 export type ModelMapperFn<Types, Models> = <Key extends keyof Models>(
   model: Models[Key],
   addAttribute: (attribute: PartialAttribute<Types>) => void,
-  addAssociation: (association: PartialAssociation<keyof Models>) => void,
+  addAssociation: (association: PartialAssociation<Models>) => void,
 ) => void
 
 export type GeneratedModelMapper<Types, Models> = <Key extends keyof Models>(
@@ -30,8 +30,8 @@ export const createModelMapper = <Types, Models>(
     const associations: PartialAssociations<any, any> = {}
     mapper(
       model,
-      (attribute: PartialAttribute<Types>) => (attributes[attribute.name] = attribute),
-      (association: PartialAssociation<keyof Models>) => (associations[association.name] = association),
+      attribute => attributes[attribute.name] = attribute,
+      association => associations[association.name] = association,
     )
     return creator(key, attributes, associations, model)
   }

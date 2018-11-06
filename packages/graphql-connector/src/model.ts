@@ -1,5 +1,5 @@
 import { GraphQLInputObjectType, GraphQLObjectType } from 'graphql'
-import { applyToRecordOf, RecordOf } from 'utils'
+import { applyToRecordOf, RecordOf } from './utils'
 
 export type AttributeFieldType = 'Attribute'
 export type AssociationFieldType = 'Association'
