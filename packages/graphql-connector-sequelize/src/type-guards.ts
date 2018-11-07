@@ -181,7 +181,7 @@ export interface DataTypeGeometry extends DataTypeAbstract {
 // need to do this instead
 // tslint:disable-next-line:no-duplicate-imports
 import * as Sequelize from 'sequelize'
-const DataTypeConstructors = (Sequelize as any).DataTypes
+export const DataTypeConstructors = (Sequelize as any).DataTypes
 
 export const isAbstract = (type: any): type is DataTypeAbstract => type instanceof DataTypeConstructors.ABSTRACT
 export const isArray = (type: any): type is DataTypeArray => type instanceof DataTypeConstructors.ARRAY
@@ -220,6 +220,8 @@ export const isVirtual = (type: any): type is DataTypeVirtual => type instanceof
 
 // merge a few guards into similar ones as GraphQL does not have such a fine grained type system
 
+export type DataTypeAnyID = DataTypeUUID | DataTypeUUIDv1 | DataTypeUUIDv4
+
 export type DataTypeAnyFloat = DataTypeFloat | DataTypeDouble | DataTypeReal
 
 export type DataTypeAnyInteger =
@@ -240,7 +242,15 @@ export type DataTypeAnyString =
 
 export type DataTypeAnyDate = DataTypeDate | DataTypeDateOnly | DataTypeTime
 
-export type DataTypeScalar = DataTypeAnyNumber | DataTypeAnyString | DataTypeAnyDate | DataTypeUUID | DataTypeBoolean
+export type DataTypeScalar =
+  | DataTypeAnyNumber
+  | DataTypeAnyString
+  | DataTypeAnyDate
+  | DataTypeUUID
+  | DataTypeBoolean
+  | DataTypeAnyID
+
+export const isIDType = (type: any): type is DataTypeAnyID => isUUID(type) || isUUIDv1(type) || isUUIDv4(type)
 
 export const isFloatType = (type: any): type is DataTypeAnyFloat =>
   isFloat(type) || isDouble(type) || isDoublePrecision(type) || isReal(type)
@@ -257,10 +267,11 @@ export const isStringType = (type: any): type is DataTypeAnyString =>
   isBigInt(type) || // these need to be stored as string
   isDecimal(type) // these need to be stored as string
 
-export const isDateType = (type: any): type is DataTypeAnyDate => isDate(type) || isDateOnly(type) || isTime(type)
+export const isDateType = (type: any): type is DataTypeAnyDate =>
+  isDate(type) || isDateOnly(type) || isTime(type) || isNow(type)
 
 export const isScalarType = (type: any): type is DataTypeScalar =>
-  isNumericType(type) || isStringType(type) || isDateType(type) || isUUID(type) || isBoolean(type)
+  isNumericType(type) || isStringType(type) || isDateType(type) || isIDType(type) || isBoolean(type)
 
 export const guards = {
   isAbstract,
@@ -280,6 +291,7 @@ export const guards = {
   isFloatType,
   isGeometry,
   isHstore,
+  isIDType,
   isInteger,
   isIntegerType,
   isJson,

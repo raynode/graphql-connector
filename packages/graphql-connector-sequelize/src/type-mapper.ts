@@ -7,6 +7,7 @@ import {
   GraphQLID,
   GraphQLInt,
   GraphQLList,
+  GraphQLNonNull,
   GraphQLObjectType,
   GraphQLScalarType,
   GraphQLString,
@@ -23,15 +24,14 @@ import { DataTypeAbstract, DataTypes, guards, RangeSubTypes } from './type-guard
 // Map of special characters
 const specialCharsMap = new Map([['¼', 'frac14'], ['½', 'frac12'], ['¾', 'frac34']])
 
-const sanitizeEnumValue = (value: string) => {
-  return value
+const sanitizeEnumValue = (value: string) =>
+  value
     .trim()
     .replace(/([^_a-zA-Z0-9])/g, (_, p) => specialCharsMap.get(p) || ' ')
     .split(' ')
     .map((v, i) => (i ? upperFirst(v) : v))
     .join('')
     .replace(/(^\d)/, '_$1')
-}
 
 export const toGraphQLScalar = (sequelizeType: DataTypeAbstract): GraphQLScalarType => {
   if (guards.isBoolean(sequelizeType)) return GraphQLBoolean
@@ -42,11 +42,11 @@ export const toGraphQLScalar = (sequelizeType: DataTypeAbstract): GraphQLScalarT
 
   if (guards.isStringType(sequelizeType)) return GraphQLString
 
-  if (guards.isUUID(sequelizeType)) return GraphQLID
+  if (guards.isIDType(sequelizeType)) return GraphQLID
 
   if (guards.isIntegerType(sequelizeType)) return GraphQLInt
 
-  console.log(sequelizeType)
+  console.error('Unkown Scalar Type found:', sequelizeType)
   throw new Error('Unkown Scalar Type found')
 }
 
@@ -81,7 +81,7 @@ export const typeMapper: TypeMapper<DataTypes, any> = (attribute, model) => {
 
   if (guards.isScalarType(sequelizeType)) return toGraphQLScalar(sequelizeType)
 
-  if (guards.isArray(sequelizeType)) return new GraphQLList(toGraphQLScalar(sequelizeType.type))
+  if (guards.isArray(sequelizeType)) return new GraphQLList(new GraphQLNonNull(toGraphQLScalar(sequelizeType.type)))
 
   if (guards.isEnum(sequelizeType)) {
     const values = mapValues(sequelizeType.values.map(sanitizeEnumValue), value => ({ value }))
@@ -109,6 +109,5 @@ export const typeMapper: TypeMapper<DataTypes, any> = (attribute, model) => {
     })
   }
 
-  console.error(sequelizeType)
   throw new Error(`Unable to convert ${sequelizeType.key}::${sequelizeType.toSql()} to a GraphQL type`)
 }
