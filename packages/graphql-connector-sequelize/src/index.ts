@@ -2,3 +2,13 @@ export * from './type-mapper'
 export * from './model-mapper'
 export * from './types'
 export * from './type-guards'
+
+import { PartialGeneratorConfiguration } from '@raynode/graphql-connector'
+import { modelMapper, Models } from './model-mapper'
+import { DataTypes } from './type-guards'
+import { typeMapper } from './type-mapper'
+
+export const configuration: PartialGeneratorConfiguration<DataTypes, Models> = {
+  modelMapper,
+  typeMapper,
+}
