@@ -6,7 +6,8 @@
   "private": true,
   "scripts": {
     "commitmsg": "commitlint -e $GIT_PARAMS",
-    "build": "lerna run build"
+    "build": "lerna run build",
+    "publish": "npm run build && npx lerna publish"
   },
   "keywords": [],
   "author": "",
