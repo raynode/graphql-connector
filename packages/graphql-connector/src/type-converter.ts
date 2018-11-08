@@ -9,6 +9,8 @@ export const applyTypeMapper = <Types, Models>(
 ) => (field: BaseField<Types, Models>, model: AnyModel<Types, Models>): GraphQLType => {
   if (isAssociationField(field)) {
     const model = getModel(field.model)
+    if(!model)
+      return null
     return field.list ? model.types.list : model.types.type
   }
   const type = typeMapper(field as Attribute<Types>, model)

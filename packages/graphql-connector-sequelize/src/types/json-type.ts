@@ -17,19 +17,17 @@ import { Kind } from 'graphql/language'
 import { property } from 'lodash'
 
 const astToJson = {
-  [Kind.INT]: (ast: IntValueNode) => GraphQLInt.parseLiteral(ast),
-  [Kind.FLOAT]: (ast: FloatValueNode) => GraphQLFloat.parseLiteral(ast),
-  [Kind.BOOLEAN]: (ast: BooleanValueNode) => GraphQLBoolean.parseLiteral(ast),
-  [Kind.STRING]: (ast: StringValueNode) => GraphQLString.parseLiteral(ast),
+  [Kind.INT]: (ast: IntValueNode) => GraphQLInt.parseLiteral(ast, null),
+  [Kind.FLOAT]: (ast: FloatValueNode) => GraphQLFloat.parseLiteral(ast, null),
+  [Kind.BOOLEAN]: (ast: BooleanValueNode) => GraphQLBoolean.parseLiteral(ast, null),
+  [Kind.STRING]: (ast: StringValueNode) => GraphQLString.parseLiteral(ast, null),
   [Kind.ENUM]: (ast: EnumValueNode) => String(ast.value),
-  [Kind.LIST]: (ast: ListValueNode) => ast.values.map(astItem => JSONType.parseLiteral(astItem)),
-  [Kind.OBJECT]: (ast: ObjectValueNode) => {
-    const obj = {}
-    ast.fields.forEach(field => {
-      obj[field.name.value] = JSONType.parseLiteral(field.value)
-    })
-    return obj
-  },
+  [Kind.LIST]: (ast: ListValueNode) => ast.values.map(astItem => JSONType.parseLiteral(astItem, null)),
+  [Kind.OBJECT]: (ast: ObjectValueNode) =>
+    ast.fields.reduce((obj, field) => {
+      obj[field.name.value] = JSONType.parseLiteral(field.value, null)
+      return obj
+    }, {}),
   [Kind.VARIABLE]: (ast: VariableNode) => {
     /*
     this way converted query variables would be easily

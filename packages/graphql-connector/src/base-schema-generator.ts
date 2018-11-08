@@ -64,6 +64,7 @@ export const createBaseSchemaGenerator = <Types, Models>(
         interfaces: [NodeType],
         fields: () => model.dataTypes.type,
       })
+
       const list = new GraphQLObjectType({
         name: names.fields.findMany,
         interfaces: [ListType],
@@ -98,7 +99,8 @@ export const createBaseSchemaGenerator = <Types, Models>(
       model.dataTypes = {
         type: model.fields.reduce((dataFields, field) => {
           const type = typeMapper(field, model)
-          dataFields[field.name] = { type: field.nonNull ? new GraphQLNonNull(type) : type }
+          if(type)
+            dataFields[field.name] = { type: field.nonNull ? new GraphQLNonNull(type) : type }
           return dataFields
         }, {}),
       }

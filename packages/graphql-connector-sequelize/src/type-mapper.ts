@@ -15,7 +15,7 @@ import {
 } from 'graphql'
 
 import { capitalize } from 'inflection'
-import { mapValues, upperFirst } from 'lodash'
+import { mapKeys, upperFirst } from 'lodash'
 
 import { DateType, JSONType, UploadType } from './types'
 
@@ -83,10 +83,11 @@ export const typeMapper: TypeMapper<DataTypes, any> = (attribute, model) => {
 
   if (guards.isArray(sequelizeType)) return new GraphQLList(new GraphQLNonNull(toGraphQLScalar(sequelizeType.type)))
 
-  if (guards.isEnum(sequelizeType)) {
-    const values = mapValues(sequelizeType.values.map(sanitizeEnumValue), value => ({ value }))
-    return new GraphQLEnumType({ name: `${model.name.toString()}${capitalize(attribute.name)}EnumType`, values })
-  }
+  if (guards.isEnum(sequelizeType))
+    return new GraphQLEnumType({
+      name: `${model.name.toString()}${capitalize(attribute.name)}EnumType`,
+      values: mapKeys(sequelizeType.values.map(sanitizeEnumValue).map((value, index) => ({ value })), 'value'),
+    })
 
   if (guards.isVirtual(sequelizeType))
     return sequelizeType.returnType ? toGraphQLScalar(sequelizeType.returnType) : GraphQLString
