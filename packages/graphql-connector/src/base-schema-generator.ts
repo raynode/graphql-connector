@@ -98,13 +98,19 @@ export const createBaseSchemaGenerator = <Types, Models>(
 
       model.dataTypes = {
         type: model.fields.reduce((dataFields, field) => {
-          const type = typeMapper(field, model)
-          if(type)
-            dataFields[field.name] = { type: field.nonNull ? new GraphQLNonNull(type) : type }
+          const fieldType = typeMapper(field, model)
+
+          const type = fieldType && (field.nonNull ? new GraphQLNonNull(fieldType) : fieldType)
+          if (type)
+            dataFields[field.name] = {
+              type,
+              resolve: field.resolver,
+            }
           return dataFields
         }, {}),
       }
     })
+
     // 3. generator queries, mutations & subscriptions
     const queryFields = modelNames.reduce((queryFields, name) => {
       const model = getModel(name)
@@ -119,7 +125,7 @@ export const createBaseSchemaGenerator = <Types, Models>(
       queryFields[names.fields.findMany] = {
         type: model.types.list,
         // args: { where: { type: nonNullGraphQL(whereFilter) }, order },
-        resolve: () => null,
+        resolve: model.resolvers.findMany,
       }
 
       return queryFields

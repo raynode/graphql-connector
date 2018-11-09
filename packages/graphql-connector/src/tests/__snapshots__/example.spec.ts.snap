@@ -1,13 +1,158 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should handle the example code: Schema 1`] = `
+exports[`should handle the example code should find all posts: Data 1`] = `
+Object {
+  "Posts": Object {
+    "nodes": Array [
+      Object {
+        "author": Object {
+          "name": "Paul",
+        },
+        "comments": Object {
+          "nodes": Array [],
+        },
+        "text": "This is a good time to be alive, this is our new Blog. Clean code to the max!",
+        "title": "Welcome to the new Blog!",
+        "upvotes": 17,
+      },
+      Object {
+        "author": Object {
+          "name": "Georg",
+        },
+        "comments": Object {
+          "nodes": Array [
+            Object {
+              "commentor": Object {
+                "name": "Georg",
+              },
+              "msg": "I believe!",
+            },
+          ],
+        },
+        "text": "I think that is a fair question, GraphQL sometimes feels very alien to people.",
+        "title": "Was alien technology involved?",
+        "upvotes": 4,
+      },
+    ],
+  },
+}
+`;
+
+exports[`should handle the example code should find the user by name: Data 1`] = `
+Object {
+  "nodes": Array [
+    Object {
+      "email": "georg@example.com",
+      "name": "Georg",
+      "posts": Object {
+        "nodes": Array [
+          Object {
+            "comments": Object {
+              "nodes": Array [
+                Object {
+                  "commentor": Object {
+                    "name": "Georg",
+                  },
+                  "msg": "I believe!",
+                },
+              ],
+            },
+            "text": "I think that is a fair question, GraphQL sometimes feels very alien to people.",
+            "title": "Was alien technology involved?",
+            "upvotes": 4,
+          },
+        ],
+      },
+    },
+    Object {
+      "email": "paul@example.com",
+      "name": "Paul",
+      "posts": Object {
+        "nodes": Array [
+          Object {
+            "comments": Object {
+              "nodes": Array [],
+            },
+            "text": "This is a good time to be alive, this is our new Blog. Clean code to the max!",
+            "title": "Welcome to the new Blog!",
+            "upvotes": 17,
+          },
+        ],
+      },
+    },
+  ],
+}
+`;
+
+exports[`should handle the example code should find the user by name: Select authors and their posts 1`] = `
+Array [
+  Array [
+    Object {
+      "email": "georg@example.com",
+      "name": "Georg",
+      "posts": Object {
+        "nodes": Array [
+          Object {
+            "comments": Object {
+              "nodes": Array [
+                Object {
+                  "commentor": Object {
+                    "name": "Georg",
+                  },
+                  "msg": "I believe!",
+                },
+              ],
+            },
+            "text": "I think that is a fair question, GraphQL sometimes feels very alien to people.",
+            "title": "Was alien technology involved?",
+            "upvotes": 4,
+          },
+        ],
+      },
+    },
+    Object {
+      "email": "paul@example.com",
+      "name": "Paul",
+      "posts": Object {
+        "nodes": Array [
+          Object {
+            "comments": Object {
+              "nodes": Array [],
+            },
+            "text": "This is a good time to be alive, this is our new Blog. Clean code to the max!",
+            "title": "Welcome to the new Blog!",
+            "upvotes": 17,
+          },
+        ],
+      },
+    },
+  ],
+  "=== === ===",
+  "Georg [georg@example.com]: 1",
+  "=== Was alien technology involved? (4:1) ===",
+  "---
+I think that is a fair question, GraphQL sometimes feels very alien to people.
+---",
+  "--> Georg: \\"I believe!\\"",
+  "=== === ===",
+  "=== === ===",
+  "Paul [paul@example.com]: 1",
+  "=== Welcome to the new Blog! (17:0) ===",
+  "---
+This is a good time to be alive, this is our new Blog. Clean code to the max!
+---",
+  "=== === ===",
+]
+`;
+
+exports[`should handle the example code should have the correct schema: Schema 1`] = `
 "type Comment implements Node {
-  msg: String
   id: ID
   createdAt: Date
   lastUpdate: Date
+  msg: String
   commentor: User
-  Post: Post
+  post: Post
 }
 
 type Comments implements List {
@@ -42,19 +187,20 @@ interface Node {
 }
 
 type Page {
+  page: Int
   limit: Int
   offset: Int
 }
 
 type Post implements Node {
-  title: String
-  text: String
-  upvotes: Int
   id: ID
   createdAt: Date
   lastUpdate: Date
+  title: String
+  text: String
+  upvotes: Int
   author: User
-  Comment: Comments
+  comments: Comments
 }
 
 type Posts implements List {
@@ -72,14 +218,15 @@ type Query {
 }
 
 type User implements Node {
-  name: String
-  email: String
-  password: String
   id: ID
   createdAt: Date
   lastUpdate: Date
-  Post: Posts
-  Comment: Comments
+  name: String
+  email: String
+  password: String
+  num: Int
+  posts: Posts
+  comments: Comments
 }
 
 type Users implements List {

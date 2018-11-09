@@ -1,5 +1,13 @@
-import { GraphQLInputObjectType, GraphQLObjectType } from 'graphql'
+import { Page } from 'generic-types'
+import { GraphQLInputObjectType, GraphQLObjectType, GraphQLTypeResolver } from 'graphql'
 import { applyToRecordOf, RecordOf } from './utils'
+
+export type Resolver<Inst, Args, Context, Result> = (
+  obj: Inst,
+  args: Args,
+  context: Context,
+  info: any,
+) => Promise<Result> | Result
 
 export type AttributeFieldType = 'Attribute'
 export type AssociationFieldType = 'Association'
@@ -15,6 +23,19 @@ export interface ModelFields {
   update: GraphQLInputObjectType
 }
 
+export interface Paged<Inst> {
+  nodes: Inst[]
+  page: Page
+}
+
+export interface ModelResolver<Inst> {
+  create: Resolver<null, any, any, Inst>
+  update: Resolver<null, any, any, Inst>
+  delete: Resolver<null, any, any, Inst[]>
+  findOne: Resolver<null, any, any, Inst>
+  findMany: Resolver<null, any, any, Paged<Inst>>
+}
+
 export interface ExtendedModel<Types, Models> extends AnyModel<Types, Models> {
   mutationTypes: Record<Mutations, GraphQLInputObjectType>
   queryTypes: Record<Queries, GraphQLObjectType>
@@ -22,64 +43,69 @@ export interface ExtendedModel<Types, Models> extends AnyModel<Types, Models> {
   dataTypes: Record<DataTypes, any>
 }
 
-export interface BaseAttribute {
+export interface BaseAttribute<Inst, Result = any> {
   fieldType: FieldType
   name: string
   nonNull: boolean
   list: boolean
+  resolver?: Resolver<Inst, any, any, Result>
 }
-export type PartialBaseAttribute = Partial<BaseAttribute>
+export type PartialBaseAttribute<Inst> = Partial<BaseAttribute<Inst>>
 
-export interface BaseField<Types, Models> extends BaseAttribute {
+export interface BaseField<Types, Models, Inst> extends BaseAttribute<Inst> {
   list: boolean
   name: string
   nonNull: boolean
 }
 
-export const isAttributeField = <Types, Models>(field: BaseField<Types, Models>): field is Attribute<Types> =>
-  field.fieldType === 'Attribute'
+export const isAttributeField = <Inst, Types, Models>(
+  field: BaseField<Types, Models, Inst>,
+): field is Attribute<Inst, Types> => field.fieldType === 'Attribute'
 
-export const isAssociationField = <Types, Models>(field: BaseField<Types, Models>): field is Association<Models> =>
-  field.fieldType === 'Association'
+export const isAssociationField = <Inst, Types, Models>(
+  field: BaseField<Types, Models, Inst>,
+): field is Association<Inst, Models> => field.fieldType === 'Association'
 
-export interface Attribute<Types> extends BaseAttribute {
+export interface Attribute<Inst, Types> extends BaseAttribute<Inst> {
   fieldType: AttributeFieldType
   type: Types
+  resolver: Resolver<Inst, any, any, Types>
 }
-export interface PartialAttribute<Types> extends PartialBaseAttribute {
+export interface PartialAttribute<Inst, Types> extends PartialBaseAttribute<Inst> {
   type: Types
+  resolver: Resolver<Inst, any, any, Types>
 }
 
-export interface Association<Models> extends BaseAttribute {
+export interface Association<Inst, Models> extends BaseAttribute<Inst> {
   fieldType: AssociationFieldType
   model: keyof Models
+  resolver: Resolver<Inst, any, any, Models>
 }
-export interface PartialAssociation<Models> extends PartialBaseAttribute {
+export interface PartialAssociation<Inst, Models> extends PartialBaseAttribute<Inst> {
   model: keyof Models
+  resolver: Resolver<Inst, any, any, Models>
 }
-export type Attributes<Attrs, Types> = RecordOf<Attrs, Attribute<Types>>
-export type PartialAttributes<Attrs, Types> = RecordOf<Attrs, PartialAttribute<Types>>
-export type Associations<Assocs, Models> = RecordOf<Assocs, Association<Models>>
-export type PartialAssociations<Assocs, Models> = RecordOf<Assocs, PartialAssociation<Models>>
+export type Attributes<Inst, Attrs, Types> = RecordOf<Attrs, Attribute<Inst, Types>>
+export type PartialAttributes<Inst, Attrs, Types> = RecordOf<Attrs, PartialAttribute<Inst, Types>>
+export type Associations<Inst, Assocs, Models> = RecordOf<Assocs, Association<Inst, Models>>
+export type PartialAssociations<Inst, Assocs, Models> = RecordOf<Assocs, PartialAssociation<Inst, Models>>
 
-export type Fields<Attrs, Assocs, Types, Models> = RecordOf<Attrs & Assocs, BaseAttribute>
+export type Fields<Attrs, Assocs, Types, Models, Inst> = RecordOf<Attrs & Assocs, BaseAttribute<Inst>>
 
-export interface Model<Attrs, Assocs, Types, Models, Source> {
+export interface Model<Attrs, Assocs, Types, Models, Inst> {
   name: keyof Models
-  attributes: Attributes<Attrs, Types>
-  associations: Associations<Assocs, Models>
-  fields: Array<BaseField<Types, Models>>
-  source?: Source
+  attributes: Attributes<Inst, Attrs, Types>
+  associations: Associations<Inst, Assocs, Models>
+  fields: Array<BaseField<Types, Models, Inst>>
+  resolvers: ModelResolver<Inst>
 }
-export type AnyModel<Types, Models, Source = any> = Model<any, any, Types, Models, Source>
+export type AnyModel<Types, Models, Inst = any> = Model<any, any, Types, Models, Inst>
 
-export type ModelCache<Models extends string, Type = any> = { [key in Models]: Type }
-
-export const completeBaseAttribute = (
+export const completeBaseAttribute = <Inst>(
   fieldType: FieldType,
-  attribute: PartialBaseAttribute,
+  attribute: PartialBaseAttribute<Inst>,
   name: string,
-): BaseAttribute => ({
+): BaseAttribute<Inst> => ({
   list: false,
   name,
   nonNull: false,
@@ -87,39 +113,36 @@ export const completeBaseAttribute = (
   fieldType,
 })
 
-export const completeAttribute = <Types>(attribute: PartialAttribute<Types>, name: string): Attribute<Types> => ({
+export const completeAttribute = <Inst, Types>(
+  attribute: PartialAttribute<Inst, Types>,
+  name: string,
+): Attribute<Inst, Types> => ({
   ...attribute,
   ...completeBaseAttribute('Attribute', attribute, name),
   fieldType: 'Attribute',
 })
 
-export const completeAssociation = <Models>(
-  association: PartialAssociation<Models>,
+export const completeAssociation = <Inst, Models>(
+  association: PartialAssociation<Inst, Models>,
   name: string,
-): Association<Models> => ({
+): Association<Inst, Models> => ({
   ...association,
   ...completeBaseAttribute('Association', association, name),
   fieldType: 'Association',
 })
 
-export type ModelCreator<Types, Models> = <Attrs, Assocs, Name extends keyof Models, Source>(
+export const modelCreator = <Types, Models>() => <Name extends keyof Models, Inst, Attrs = any, Assocs = any>(
   name: Name,
-  attributes?: PartialAttributes<Attrs, Types>,
-  associations?: PartialAssociations<Assocs, Models>,
-  source?: Source,
-) => Model<Attrs, Assocs, Types, Models, Source>
-
-export const modelCreator = <Types, Models>(): ModelCreator<Types, Models> => (
-  name,
-  partialAttributes = {} as any,
-  partialAssociations = {} as any,
-  source = null,
-) => {
+  partialAttributes: PartialAttributes<Inst, Attrs, Types> = {} as any,
+  partialAssociations: PartialAssociations<Inst, Assocs, Models> = {} as any,
+  resolvers: ModelResolver<Inst>,
+  source?: any,
+): Model<Attrs, Assocs, Types, Models, Inst> => {
   const attributes = applyToRecordOf(partialAttributes, completeAttribute)
   const associations = applyToRecordOf(partialAssociations, completeAssociation)
   const fields = Object.keys(attributes)
     .map(
-      (field: string): BaseField<Types, Models> => ({
+      (field: string): BaseField<Types, Models, Inst> => ({
         fieldType: 'Attribute',
         name: field,
         ...attributes[field],
@@ -127,12 +150,12 @@ export const modelCreator = <Types, Models>(): ModelCreator<Types, Models> => (
     )
     .concat(
       Object.keys(associations).map(
-        (field: string): BaseField<Types, Models> => ({
+        (field: string): BaseField<Types, Models, Inst> => ({
           fieldType: 'Association',
           name: field,
           ...associations[field],
         }),
       ),
     )
-  return { attributes, associations, name, fields, source }
+  return { attributes, associations, name, fields, resolvers }
 }

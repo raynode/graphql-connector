@@ -18,6 +18,7 @@ export const PageInputType = new GraphQLInputObjectType({
 export const PageType = new GraphQLObjectType({
   name: 'Page',
   fields: {
+    page: { type: GraphQLInt },
     limit: { type: GraphQLInt },
     offset: { type: GraphQLInt },
   },
@@ -35,3 +36,16 @@ export const ListType = new GraphQLInterfaceType({
     page: { type: new GraphQLNonNull(PageType) },
   },
 })
+
+export interface Node {
+  id: string
+}
+export interface PageInput {
+  limit: number
+  offset: number
+}
+export interface Page {
+  page: number
+  limit: number
+  offset: number
+}
