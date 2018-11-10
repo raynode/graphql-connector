@@ -6,8 +6,17 @@ import { createBaseSchemaGenerator, createSchema } from '@raynode/graphql-connec
 
 const sequelize = new Sequelize({
   dialect: 'sqlite',
-  storage: 'memory',
 })
+
+let seed = 1
+const random = () => ++seed
+// tslint:disable:no-bitwise
+const uuidv4 = () => 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+  const r = random() * 16 | 0
+  const v = c === 'x' ? r : (r & 0x3 | 0x8)
+  return v.toString(16)
+})
+// tslint:enable:no-bitwise
 
 export const User = sequelize.define('User', {
   id: {
@@ -16,7 +25,7 @@ export const User = sequelize.define('User', {
     primaryKey: true,
     unique: true,
     comment: 'Id of the user',
-    defaultValue: Sequelize.fn('gen_random_uuid'),
+    defaultValue: () => uuidv4(),
   },
   state: {
     type: Sequelize.ENUM('admin', 'member', 'guest'),
@@ -139,10 +148,45 @@ describe('schema', () => {
       mutation {
         newUser: createUser(data: {
           name: "George"
-        })
+          email: "george@example.com"
+
+        }) {
+          id
+          name
+          email
+        }
       }
     `)
-    console.log(errors)
     expect(data).toMatchSnapshot()
+  })
+
+  it('should now find Georg as well', async () => {
+    const { data } = await runQuery(`{
+      Users {
+        nodes {
+          id
+          state
+          nickname
+          name
+          email
+        }
+      }
+    }`)
+    expect(data.Users.nodes).toMatchSnapshot()
+  })
+
+  it('should find only Georg', async () => {
+    const { data } = await runQuery(`{
+      georg: User(where: {
+        name: "Georg"
+      }) {
+        id
+        state
+        nickname
+        name
+        email
+      }
+    }`)
+    expect(data.georg).toMatchSnapshot()
   })
 })

@@ -14,10 +14,38 @@ Array [
 ]
 `;
 
-exports[`schema should create a new user 1`] = `undefined`;
+exports[`schema should create a new user 1`] = `
+Object {
+  "newUser": Object {
+    "email": "george@example.com",
+    "id": "2030405060708090-a0b0c0d0-4e0f0100-8120130140-1501601701801901a01b01c01d01e01f0200",
+    "name": "George",
+  },
+}
+`;
+
+exports[`schema should find only Georg 1`] = `null`;
 
 exports[`schema should generate a full schema 1`] = `
-"\\"\\"\\"
+"input CreateLoopData {
+  id: ID
+  createdAt: Date
+  updatedAt: Date
+  nextId: ID
+  next: LoopFilter
+}
+
+input CreateUserData {
+  id: ID
+  state: UserStateEnumType
+  nickname: String
+  name: String
+  email: String
+  createdAt: Date
+  updatedAt: Date
+}
+
+\\"\\"\\"
 A special custom Scalar type for Dates that converts to a ISO formatted string 
 \\"\\"\\"
 scalar Date
@@ -35,18 +63,38 @@ type Loop implements Node {
   next: Loop
 }
 
+input LoopFilter {
+  id: ID
+  id_not: ID
+  nextId: ID
+  nextId_not: ID
+}
+
 type Loops implements List {
   nodes: [Loop!]!
   page: Page!
 }
 
+enum LoopSortOrder {
+  id_ASC
+  id_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  nextId_ASC
+  nextId_DESC
+  next_ASC
+  next_DESC
+}
+
 type Mutation {
-  createLoop: Loop
-  updateLoop: Loop
-  deleteLoops: Loops
-  createUser: User
-  updateUser: User
-  deleteUsers: Users
+  createLoop(data: CreateLoopData): Loop
+  updateLoop(data: UpdateLoopData, where: LoopFilter): Loop
+  deleteLoops(where: LoopFilter, order: LoopSortOrder): Loops!
+  createUser(data: CreateUserData): User
+  updateUser(data: UpdateUserData, where: UserFilter): User
+  deleteUsers(where: UserFilter, order: UserSortOrder): Users!
 }
 
 interface Node {
@@ -60,10 +108,28 @@ type Page {
 }
 
 type Query {
-  Loop: Loop
-  Loops: Loops
-  User: User
-  Users: Users
+  Loop(where: LoopFilter, order: LoopSortOrder): Loop
+  Loops(where: LoopFilter, order: LoopSortOrder): Loops!
+  User(where: UserFilter, order: UserSortOrder): User
+  Users(where: UserFilter, order: UserSortOrder): Users!
+}
+
+input UpdateLoopData {
+  id: ID
+  createdAt: Date
+  updatedAt: Date
+  nextId: ID
+  next: LoopFilter
+}
+
+input UpdateUserData {
+  id: ID
+  state: UserStateEnumType
+  nickname: String
+  name: String
+  email: String
+  createdAt: Date
+  updatedAt: Date
 }
 
 type User implements Node {
@@ -76,9 +142,37 @@ type User implements Node {
   updatedAt: Date!
 }
 
+input UserFilter {
+  id: ID
+  id_not: ID
+  nickname: String
+  nickname_not: String
+  name: String
+  name_not: String
+  email: String
+  email_not: String
+}
+
 type Users implements List {
   nodes: [User!]!
   page: Page!
+}
+
+enum UserSortOrder {
+  id_ASC
+  id_DESC
+  state_ASC
+  state_DESC
+  nickname_ASC
+  nickname_DESC
+  name_ASC
+  name_DESC
+  email_ASC
+  email_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
 }
 
 enum UserStateEnumType {
@@ -87,4 +181,23 @@ enum UserStateEnumType {
   guest
 }
 "
+`;
+
+exports[`schema should now find Georg as well 1`] = `
+Array [
+  Object {
+    "email": "admin@example.com",
+    "id": "1",
+    "name": "Admin",
+    "nickname": "Admin",
+    "state": "admin",
+  },
+  Object {
+    "email": "george@example.com",
+    "id": "2030405060708090-a0b0c0d0-4e0f0100-8120130140-1501601701801901a01b01c01d01e01f0200",
+    "name": "George",
+    "nickname": null,
+    "state": "guest",
+  },
+]
 `;
