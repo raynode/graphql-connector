@@ -155,9 +155,63 @@ exports[`should handle the example code should have the correct schema: Schema 1
   post: Post
 }
 
+input CommentFilter {
+  id: ID
+  id_not: ID
+  msg: String
+  msg_not: String
+}
+
 type Comments implements List {
   nodes: [Comment!]!
   page: Page!
+}
+
+enum CommentSortOrder {
+  id_ASC
+  id_DESC
+  createdAt_ASC
+  createdAt_DESC
+  lastUpdate_ASC
+  lastUpdate_DESC
+  msg_ASC
+  msg_DESC
+  commentor_ASC
+  commentor_DESC
+  post_ASC
+  post_DESC
+}
+
+input CreateCommentData {
+  id: ID
+  createdAt: Date
+  lastUpdate: Date
+  msg: String
+  commentor: UserFilter
+  post: PostFilter
+}
+
+input CreatePostData {
+  id: ID
+  createdAt: Date
+  lastUpdate: Date
+  title: String
+  text: String
+  upvotes: Int
+  author: UserFilter
+  comments: CommentFilter
+}
+
+input CreateUserData {
+  id: ID
+  createdAt: Date
+  lastUpdate: Date
+  name: String
+  email: String
+  password: String
+  num: Int
+  posts: PostFilter
+  comments: CommentFilter
 }
 
 \\"\\"\\"
@@ -171,15 +225,15 @@ interface List {
 }
 
 type Mutation {
-  createUser: User
-  updateUser: User
-  deleteUsers: Users
-  createPost: Post
-  updatePost: Post
-  deletePosts: Posts
-  createComment: Comment
-  updateComment: Comment
-  deleteComments: Comments
+  createUser(data: CreateUserData): User
+  updateUser(data: UpdateUserData, where: UserFilter): User
+  deleteUsers(where: UserFilter, order: UserSortOrder): Users!
+  createPost(data: CreatePostData): Post
+  updatePost(data: UpdatePostData, where: PostFilter): Post
+  deletePosts(where: PostFilter, order: PostSortOrder): Posts!
+  createComment(data: CreateCommentData): Comment
+  updateComment(data: UpdateCommentData, where: CommentFilter): Comment
+  deleteComments(where: CommentFilter, order: CommentSortOrder): Comments!
 }
 
 interface Node {
@@ -203,18 +257,84 @@ type Post implements Node {
   comments: Comments
 }
 
+input PostFilter {
+  id: ID
+  id_not: ID
+  title: String
+  title_not: String
+  text: String
+  text_not: String
+  upvotes: Int
+  upvotes_not: Int
+  upvotes_gt: Int
+  upvotes_lt: Int
+}
+
 type Posts implements List {
   nodes: [Post!]!
   page: Page!
 }
 
+enum PostSortOrder {
+  id_ASC
+  id_DESC
+  createdAt_ASC
+  createdAt_DESC
+  lastUpdate_ASC
+  lastUpdate_DESC
+  title_ASC
+  title_DESC
+  text_ASC
+  text_DESC
+  upvotes_ASC
+  upvotes_DESC
+  userId_ASC
+  userId_DESC
+  author_ASC
+  author_DESC
+  comments_ASC
+  comments_DESC
+}
+
 type Query {
-  User: User
-  Users: Users
-  Post: Post
-  Posts: Posts
-  Comment: Comment
-  Comments: Comments
+  User(where: UserFilter, order: UserSortOrder): User
+  Users(where: UserFilter, order: UserSortOrder): Users!
+  Post(where: PostFilter, order: PostSortOrder): Post
+  Posts(where: PostFilter, order: PostSortOrder): Posts!
+  Comment(where: CommentFilter, order: CommentSortOrder): Comment
+  Comments(where: CommentFilter, order: CommentSortOrder): Comments!
+}
+
+input UpdateCommentData {
+  id: ID
+  createdAt: Date
+  lastUpdate: Date
+  msg: String
+  commentor: CommentFilter
+  post: CommentFilter
+}
+
+input UpdatePostData {
+  id: ID
+  createdAt: Date
+  lastUpdate: Date
+  title: String
+  text: String
+  upvotes: Int
+  author: PostFilter
+  comments: PostFilter
+}
+
+input UpdateUserData {
+  id: ID
+  createdAt: Date
+  lastUpdate: Date
+  name: String
+  email: String
+  password: String
+  num: Int
+  posts: UserFilter
+  comments: UserFilter
 }
 
 type User implements Node {
@@ -229,9 +349,45 @@ type User implements Node {
   comments: Comments
 }
 
+input UserFilter {
+  id: ID
+  id_not: ID
+  name: String
+  name_not: String
+  email: String
+  email_not: String
+  password: String
+  password_not: String
+  num: Int
+  num_not: Int
+  num_gt: Int
+  num_lt: Int
+}
+
 type Users implements List {
   nodes: [User!]!
   page: Page!
+}
+
+enum UserSortOrder {
+  id_ASC
+  id_DESC
+  createdAt_ASC
+  createdAt_DESC
+  lastUpdate_ASC
+  lastUpdate_DESC
+  name_ASC
+  name_DESC
+  email_ASC
+  email_DESC
+  password_ASC
+  password_DESC
+  num_ASC
+  num_DESC
+  posts_ASC
+  posts_DESC
+  comments_ASC
+  comments_DESC
 }
 "
 `;

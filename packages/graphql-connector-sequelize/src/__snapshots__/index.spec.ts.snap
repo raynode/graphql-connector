@@ -1,0 +1,90 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`schema should correctly load the data 1`] = `
+Array [
+  Object {
+    "createdAt": "2018-11-09 16:35:47.055 +00:00",
+    "email": "admin@example.com",
+    "id": "1",
+    "name": "Admin",
+    "nickname": "Admin",
+    "state": "admin",
+    "updatedAt": "2018-11-09 16:35:47.055 +00:00",
+  },
+]
+`;
+
+exports[`schema should create a new user 1`] = `undefined`;
+
+exports[`schema should generate a full schema 1`] = `
+"\\"\\"\\"
+A special custom Scalar type for Dates that converts to a ISO formatted string 
+\\"\\"\\"
+scalar Date
+
+interface List {
+  nodes: [Node!]!
+  page: Page!
+}
+
+type Loop implements Node {
+  id: ID!
+  createdAt: Date!
+  updatedAt: Date!
+  nextId: ID
+  next: Loop
+}
+
+type Loops implements List {
+  nodes: [Loop!]!
+  page: Page!
+}
+
+type Mutation {
+  createLoop: Loop
+  updateLoop: Loop
+  deleteLoops: Loops
+  createUser: User
+  updateUser: User
+  deleteUsers: Users
+}
+
+interface Node {
+  id: ID
+}
+
+type Page {
+  page: Int
+  limit: Int
+  offset: Int
+}
+
+type Query {
+  Loop: Loop
+  Loops: Loops
+  User: User
+  Users: Users
+}
+
+type User implements Node {
+  id: ID!
+  state: UserStateEnumType
+  nickname: String
+  name: String!
+  email: String!
+  createdAt: Date!
+  updatedAt: Date!
+}
+
+type Users implements List {
+  nodes: [User!]!
+  page: Page!
+}
+
+enum UserStateEnumType {
+  admin
+  member
+  guest
+}
+"
+`;

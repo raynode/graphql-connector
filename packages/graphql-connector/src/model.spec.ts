@@ -14,19 +14,28 @@ describe('model', () => {
       {
         text: {
           type: 'string',
+          resolver: () => null,
         },
       },
       {
         something: {
           model: 'Other',
+          resolver: () => null,
         },
       },
+      {} as any,
     )
-    const other = creator('Other', {
-      number: {
-        type: 'int',
+    const other = creator(
+      'Other',
+      {
+        number: {
+          type: 'int',
+          resolver: () => null,
+        },
       },
-    })
+      {},
+      {} as any,
+    )
     expect(sample.attributes.text.type).toEqual('string')
     expect(other.attributes.number.type).toEqual('int')
     expect(sample.associations.something.model).toEqual('Other')

@@ -1,7 +1,9 @@
+import { createArgsFields } from './args-filter-generator'
+import { applyFilterMapper, defaultFilterMapper, FilterMapper } from './filter-field-generator'
 import { ListType, NodeType, PageInputType, PageType } from './generic-types'
-import { AnyModel, ExtendedModel, Model } from './model'
+import { AnyModel, ExtendedModel, GenericField, Model } from './model'
 import { GeneratedModelMapper } from './model-mapper'
-import { defaultNamingStrategy, NamingStrategy } from './naming-strategy'
+import { defaultNamingStrategy, Names, NamingStrategy } from './naming-strategy'
 import { applyTypeMapper, TypeMapper } from './type-converter'
 import { RecordOf } from './utils'
 
@@ -27,6 +29,7 @@ export interface PartialGeneratorConfiguration<Types, Models> {
   modelMapper: GeneratedModelMapper<Types, Models>
   namingStrategy?: NamingStrategy
   typeMapper: TypeMapper<Types, Models>
+  filterMapper?: FilterMapper
 }
 
 export interface BaseSchema {
@@ -41,9 +44,13 @@ export const createBaseSchemaGenerator = <Types, Models>(
   partialConfiguration: PartialGeneratorConfiguration<Types, Models>,
 ): BaseSchemaGenerator<Types, Models> => {
   const configuration: GeneratorConfiguration<Types, Models> = {
+    filterMapper: defaultFilterMapper,
     namingStrategy: defaultNamingStrategy,
     ...partialConfiguration,
   }
+  // this is independet of the models and can be defined outside
+  const filterMapper = applyFilterMapper(configuration.filterMapper)
+
   return models => {
     const modelNames: Array<keyof Models> = Object.keys(models) as any
     // 1. initialize all models
@@ -52,12 +59,8 @@ export const createBaseSchemaGenerator = <Types, Models>(
       record[name] = model
 
       const names = configuration.namingStrategy(name)
-
-      const dummyFields = {
-        dummy: {
-          type: GraphQLInt,
-        },
-      }
+      model.names = names
+      model.argsFields = createArgsFields(model, names)
 
       const type = new GraphQLObjectType({
         name: names.fields.findOne,
@@ -79,11 +82,11 @@ export const createBaseSchemaGenerator = <Types, Models>(
         list,
         create: new GraphQLInputObjectType({
           name: names.fields.create,
-          fields: () => dummyFields,
+          fields: () => model.dataTypes.type,
         }),
         update: new GraphQLInputObjectType({
           name: names.fields.update,
-          fields: () => dummyFields,
+          fields: () => model.dataTypes.type,
         }),
       }
 
@@ -92,22 +95,49 @@ export const createBaseSchemaGenerator = <Types, Models>(
 
     const getModel = (modelName: keyof Models): ExtendedModel<Types, Models> => record[modelName]
     const typeMapper = applyTypeMapper(configuration.typeMapper, getModel)
+
     // 2. create field lists
     modelNames.forEach(name => {
       const model = getModel(name)
 
-      model.dataTypes = {
-        type: model.fields.reduce((dataFields, field) => {
-          const fieldType = typeMapper(field, model)
+      const fields = model.fields.reduce(
+        (fields, field) => {
+          const type = typeMapper(field, model)
+          if (!type) return fields
+          const association = model.associations[field.name]
+          fields.push({
+            type,
+            fieldType: field.fieldType,
+            name: field.name,
+            nonNull: field.nonNull,
+            resolver: field.resolver,
+            model: association ? getModel(association.model) : null,
+          })
+          return fields
+        },
+        [] as GenericField[],
+      )
 
-          const type = fieldType && (field.nonNull ? new GraphQLNonNull(fieldType) : fieldType)
-          if (type)
-            dataFields[field.name] = {
-              type,
-              resolve: field.resolver,
-            }
+      model.dataTypes = {
+        type: fields.reduce((dataFields, { name, nonNull, resolver: resolve, type: fieldType }) => {
+          dataFields[name] = { type: nonNull ? new GraphQLNonNull(fieldType) : fieldType, resolve }
           return dataFields
         }, {}),
+        create: fields.reduce((create, { name, fieldType, type, model }) => {
+          create[name] = fieldType === 'Attribute' ? { type } : { type: model.argsFields.where }
+          return create
+        }, {}),
+        data: fields.reduce((data, { name, type, fieldType }) => {
+          data[name] = fieldType === 'Attribute' ? { type } : { type: model.argsFields.where }
+          return data
+        }, {}),
+        where: fields.reduce(
+          (where, { name, fieldType, type }) => ({
+            ...where,
+            ...(fieldType === 'Association' ? null : filterMapper(name, type)),
+          }),
+          {},
+        ),
       }
     })
 
@@ -117,15 +147,21 @@ export const createBaseSchemaGenerator = <Types, Models>(
       const names = configuration.namingStrategy(name)
 
       queryFields[names.fields.findOne] = {
+        args: {
+          [names.arguments.where]: { type: model.argsFields.where },
+          [names.arguments.order]: { type: model.argsFields.order },
+        },
+        resolve: model.resolvers.findOne,
         type: model.types.type,
-        // args: { where: { type: nonNullGraphQL(whereFilter) }, order },
-        resolve: () => null,
       }
 
       queryFields[names.fields.findMany] = {
-        type: model.types.list,
-        // args: { where: { type: nonNullGraphQL(whereFilter) }, order },
+        args: {
+          [names.arguments.where]: { type: model.argsFields.where },
+          [names.arguments.order]: { type: model.argsFields.order },
+        },
         resolve: model.resolvers.findMany,
+        type: new GraphQLNonNull(model.types.list),
       }
 
       return queryFields
@@ -136,21 +172,27 @@ export const createBaseSchemaGenerator = <Types, Models>(
       const names = configuration.namingStrategy(name)
 
       mutationFields[names.fields.create] = {
+        args: { [names.arguments.data]: { type: model.argsFields.create } },
+        resolve: model.resolvers.create,
         type: model.types.type,
-        // args: { where: { type: nonNullGraphQL(whereFilter) }, order },
-        resolve: () => null,
       }
 
       mutationFields[names.fields.update] = {
+        args: {
+          [names.arguments.data]: { type: model.argsFields.data },
+          [names.arguments.where]: { type: model.argsFields.where },
+        },
+        resolve: model.resolvers.update,
         type: model.types.type,
-        // args: { where: { type: nonNullGraphQL(whereFilter) }, order },
-        resolve: () => null,
       }
 
       mutationFields[names.fields.delete] = {
-        type: model.types.list,
-        // args: { where: { type: nonNullGraphQL(whereFilter) }, order },
-        resolve: () => null,
+        args: {
+          [names.arguments.where]: { type: model.argsFields.where },
+          [names.arguments.order]: { type: model.argsFields.order },
+        },
+        resolve: model.resolvers.delete,
+        type: new GraphQLNonNull(model.types.list),
       }
 
       return mutationFields

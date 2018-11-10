@@ -1,8 +1,12 @@
 import * as Sequelize from 'sequelize'
+import { typeMapper } from './type-mapper'
 import { modelMapper } from './model-mapper'
+import { graphql, GraphQLSchema, printSchema } from 'graphql'
+import { createBaseSchemaGenerator, createSchema } from '@raynode/graphql-connector'
 
 const sequelize = new Sequelize({
   dialect: 'sqlite',
+  storage: 'memory',
 })
 
 export const User = sequelize.define('User', {
@@ -24,9 +28,6 @@ export const User = sequelize.define('User', {
     type: Sequelize.STRING,
     allowNull: false,
     unique: true,
-    set(val) {
-      this.setDataValue('email', val.toLowerCase())
-    },
   },
 })
 
@@ -43,6 +44,35 @@ export const Loop = sequelize.define('Loop', {
 Loop.hasOne(Loop, {
   as: 'next',
 })
+
+const initialize = async () => { try {
+  // tslint:disable:max-line-length
+  await sequelize.query(`DROP TABLE IF EXISTS Users;`)
+
+  await sequelize.query(`
+    CREATE TABLE Users (
+      id STRING PRIMARY KEY,
+      nickname TEXT,
+      name TEXT NOT NULL,
+      state TEXT NOT NULL,
+      email TEXT NOT NULL,
+      "createdAt" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+      "updatedAt" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+    );
+  `)
+
+  await sequelize.query(`
+    INSERT INTO Users (id,state,nickname,name,email,createdAt,updatedAt) VALUES ('1','admin','Admin','Admin','admin@example.com','2018-11-09 16:35:47.055 +00:00','2018-11-09 16:35:47.055 +00:00');
+  `)
+
+  const db = await sequelize.query(`
+    SELECT * FROM Users
+  `)
+
+  console.log(db)
+  // tslint:enable:max-line-length
+} catch(err) { console.error(err) } }
+const initialized = initialize()
 
 describe('model-mapper', () => {
   it('should find all attributes from a model', () => {
@@ -67,5 +97,52 @@ describe('model-mapper', () => {
   it('should find the association of a Loop', () => {
     const result = modelMapper('Loop', Loop)
     expect(result.associations).toHaveProperty('next')
+  })
+})
+
+describe('schema', () => {
+  let schema: GraphQLSchema
+  const runQuery = async (query: string) => graphql(schema, query, null, null)
+
+  beforeAll(() => initialized)
+
+  beforeEach(async () => {
+    const baseSchemaGenerator = createBaseSchemaGenerator({ typeMapper, modelMapper })
+    const baseSchema = baseSchemaGenerator({ Loop, User })
+    schema = createSchema(baseSchema)
+  })
+
+  it('should generate a full schema', () => {
+    expect(printSchema(schema)).toMatchSnapshot()
+  })
+
+  it('should correctly load the data', async () => {
+    const { data } = await runQuery(`{
+      Users {
+        nodes {
+          id
+          state
+          nickname
+          name
+          email
+          createdAt
+          updatedAt
+        }
+      }
+    }`)
+    expect(data.Users.nodes).toMatchSnapshot()
+  })
+
+  it('should create a new user', async () => {
+    console.log('Expecting to run the create resolver')
+    const { data, errors } = await runQuery(`
+      mutation {
+        newUser: createUser(data: {
+          name: "George"
+        })
+      }
+    `)
+    console.log(errors)
+    expect(data).toMatchSnapshot()
   })
 })

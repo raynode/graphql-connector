@@ -1,4 +1,4 @@
-import { AnyModel, createModelMapper, GeneratedModelMapper, ModelMapperFn } from '@raynode/graphql-connector'
+import { AnyModel, createModelMapper, GeneratedModelMapper } from '@raynode/graphql-connector'
 import * as Sequelize from 'sequelize'
 import { DataTypes } from './type-guards'
 
@@ -46,6 +46,7 @@ export const modelMapper = createModelMapper<DataTypes, Models>((model, addAttri
       name,
       type: attribute.type,
       nonNull: attribute.allowNull === false || attribute.primaryKey === true,
+      resolver: instance => instance[name],
     })
   })
 
@@ -56,6 +57,32 @@ export const modelMapper = createModelMapper<DataTypes, Models>((model, addAttri
       model: association.target.name,
       list: association.associationType === 'HasMany' || association.associationType === 'BelongsToMany',
       nonNull: association.associationType === 'BelongsTo' || association.associationType === 'BelongsToMany',
+      resolver: () => null,
     })
   })
+
+  return {
+    create: async (_, args) => {
+      console.log('CREATE')
+      console.log(args)
+      return null
+    },
+    delete: async () => null,
+    findMany: async (_, args) => {
+      console.log('FIND MANY')
+      const {
+        page = {
+          limit: 100,
+          offset: 0,
+        },
+      } = args
+      const { count, rows: nodes } = await model.findAndCount()
+      return {
+        nodes,
+        page,
+      }
+    },
+    findOne: async () => null,
+    update: async () => null,
+  }
 })

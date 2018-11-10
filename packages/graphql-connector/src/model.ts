@@ -1,5 +1,7 @@
 import { Page } from 'generic-types'
-import { GraphQLInputObjectType, GraphQLObjectType, GraphQLTypeResolver } from 'graphql'
+import { GraphQLInputObjectType, GraphQLObjectType, GraphQLType, GraphQLTypeResolver } from 'graphql'
+import { ArgsFields } from './args-filter-generator'
+import { Names } from './naming-strategy'
 import { applyToRecordOf, RecordOf } from './utils'
 
 export type Resolver<Inst, Args, Context, Result> = (
@@ -14,7 +16,7 @@ export type AssociationFieldType = 'Association'
 export type FieldType = AttributeFieldType | AssociationFieldType
 export type Mutations = 'create' | 'update' | 'delete'
 export type Queries = 'findOne' | 'findMany'
-export type DataTypes = 'type'
+export type DataTypes = 'type' | 'where' | 'data' | 'create'
 
 export interface ModelFields {
   type: GraphQLObjectType
@@ -41,6 +43,19 @@ export interface ExtendedModel<Types, Models> extends AnyModel<Types, Models> {
   queryTypes: Record<Queries, GraphQLObjectType>
   types: ModelFields
   dataTypes: Record<DataTypes, any>
+  genericFields: GenericField[]
+  names: Names
+  argsFields: ArgsFields
+}
+
+export interface GenericField {
+  // list: boolean
+  fieldType: FieldType
+  name: string
+  nonNull: boolean
+  resolver: Resolver<any, any, any, any>
+  type: GraphQLType
+  model?: ExtendedModel<any, any>
 }
 
 export interface BaseAttribute<Inst, Result = any> {
