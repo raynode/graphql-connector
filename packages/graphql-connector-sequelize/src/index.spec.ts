@@ -74,11 +74,6 @@ const initialize = async () => { try {
     INSERT INTO Users (id,state,nickname,name,email,createdAt,updatedAt) VALUES ('1','admin','Admin','Admin','admin@example.com','2018-11-09 16:35:47.055 +00:00','2018-11-09 16:35:47.055 +00:00');
   `)
 
-  const db = await sequelize.query(`
-    SELECT * FROM Users
-  `)
-
-  console.log(db)
   // tslint:enable:max-line-length
 } catch(err) { console.error(err) } }
 const initialized = initialize()

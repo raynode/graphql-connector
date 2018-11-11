@@ -9,12 +9,14 @@ export const setupDatabase = () => {
     name: 'Georg',
     email: 'georg@example.com',
     password: 'georg-is-good',
+    group: 'member',
   })
 
   const userPaul = User.create({
     name: 'Paul',
     email: 'paul@example.com',
     password: 'pauls-password',
+    group: 'admin',
   })
 
   const postFirst = Post.create({

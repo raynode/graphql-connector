@@ -1,6 +1,183 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should handle the example code should find all posts: Data 1`] = `
+exports[`the example code should add Frank as a member 1`] = `
+Object {
+  "frank": Object {
+    "email": "frank@example.com",
+    "group": "member",
+    "id": "User:7",
+    "name": "Frank",
+  },
+}
+`;
+
+exports[`the example code should add Frank as a member 2`] = `
+Instance {
+  "attributes": Object {
+    "createdAt": 2018-09-30T22:00:00.000Z,
+    "email": "frank@example.com",
+    "group": "member",
+    "id": "User:7",
+    "lastUpdate": 2018-09-30T22:00:00.000Z,
+    "name": "Frank",
+  },
+  "model": Model {
+    "attributes": Object {
+      "comments": DBListType {
+        "subtype": DBIDType {
+          "source": "Comment",
+          "sourceAttribute": "commentor",
+          "target": "User",
+          "targetAttribute": "id",
+        },
+      },
+      "createdAt": DBDateType {},
+      "email": DBStringType {},
+      "group": DBStringType {},
+      "id": DBIDType {
+        "source": "User",
+        "sourceAttribute": "id",
+        "target": null,
+        "targetAttribute": "id",
+      },
+      "lastUpdate": DBDateType {},
+      "name": DBStringType {},
+      "num": DBIntType {},
+      "password": DBStringType {},
+      "posts": DBListType {
+        "subtype": DBIDType {
+          "source": "Post",
+          "sourceAttribute": "userId",
+          "target": "User",
+          "targetAttribute": "id",
+        },
+      },
+      "questions": DBListType {
+        "subtype": DBIDType {
+          "source": "Question",
+          "sourceAttribute": "userId",
+          "target": "User",
+          "targetAttribute": "id",
+        },
+      },
+    },
+    "name": "User",
+  },
+}
+`;
+
+exports[`the example code should add a new question to the Database 1`] = `
+Object {
+  "createQuestion": Object {
+    "answers": Array [
+      "Yes!",
+      "It looks nice...",
+      "I don't know",
+      "What?",
+      "42!",
+      "Probably not",
+    ],
+    "author": Object {
+      "email": "georg@example.com",
+      "name": "Georg",
+    },
+    "id": "Question:6",
+    "question": "Do you like this project?",
+  },
+}
+`;
+
+exports[`the example code should add a new question to the Database 2`] = `
+Instance {
+  "attributes": Object {
+    "answers": Array [
+      "Yes!",
+      "It looks nice...",
+      "I don't know",
+      "What?",
+      "42!",
+      "Probably not",
+    ],
+    "createdAt": 2018-09-30T22:00:00.000Z,
+    "id": "Question:6",
+    "lastUpdate": 2018-09-30T22:00:00.000Z,
+    "question": "Do you like this project?",
+    "userId": "User:1",
+  },
+  "model": Model {
+    "attributes": Object {
+      "answers": DBListType {
+        "subtype": DBStringType {},
+      },
+      "author": DBIDType {
+        "source": "User",
+        "sourceAttribute": "id",
+        "target": "Question",
+        "targetAttribute": "userId",
+      },
+      "createdAt": DBDateType {},
+      "id": DBIDType {
+        "source": "Question",
+        "sourceAttribute": "id",
+        "target": null,
+        "targetAttribute": "id",
+      },
+      "lastUpdate": DBDateType {},
+      "question": DBStringType {},
+      "userId": null,
+    },
+    "name": "Question",
+  },
+}
+`;
+
+exports[`the example code should find Georg & Paul 1`] = `
+Object {
+  "georg": Object {
+    "email": "georg@example.com",
+    "name": "Georg",
+    "questions": Object {
+      "nodes": Array [
+        Object {
+          "answers": Array [
+            "Yes!",
+            "It looks nice...",
+            "I don't know",
+            "What?",
+            "42!",
+            "Probably not",
+          ],
+          "question": "Do you like this project?",
+        },
+      ],
+    },
+  },
+  "paul": Object {
+    "email": "paul@example.com",
+    "name": "Paul",
+    "questions": Object {
+      "nodes": Array [],
+    },
+  },
+}
+`;
+
+exports[`the example code should find all members 1`] = `
+Object {
+  "members": Object {
+    "nodes": Array [
+      Object {
+        "name": "Georg",
+      },
+      Object {
+        "name": "Frank",
+      },
+    ],
+  },
+}
+`;
+
+exports[`the example code should find all posts 1`] = `
 Object {
   "Posts": Object {
     "nodes": Array [
@@ -38,7 +215,99 @@ Object {
 }
 `;
 
-exports[`should handle the example code should find the user by name: Data 1`] = `
+exports[`the example code should find all users with posts 1`] = `
+Object {
+  "authors": Object {
+    "nodes": Array [
+      Object {
+        "name": "Georg",
+      },
+      Object {
+        "name": "Paul",
+      },
+    ],
+  },
+}
+`;
+
+exports[`the example code should find more data 1`] = `
+Object {
+  "Users": Object {
+    "nodes": Array [
+      Object {
+        "comments": Object {
+          "nodes": Array [
+            Object {
+              "msg": "I believe!",
+              "post": Object {
+                "title": "Was alien technology involved?",
+              },
+            },
+          ],
+        },
+        "email": "georg@example.com",
+        "name": "Georg",
+        "posts": Object {
+          "nodes": Array [
+            Object {
+              "comments": Object {
+                "nodes": Array [
+                  Object {
+                    "commentor": Object {
+                      "name": "Georg",
+                    },
+                    "msg": "I believe!",
+                  },
+                ],
+              },
+              "title": "Was alien technology involved?",
+              "upvotes": 4,
+            },
+          ],
+        },
+        "questions": Object {
+          "nodes": Array [
+            Object {
+              "answers": Array [
+                "Yes!",
+                "It looks nice...",
+                "I don't know",
+                "What?",
+                "42!",
+                "Probably not",
+              ],
+              "question": "Do you like this project?",
+            },
+          ],
+        },
+      },
+      Object {
+        "comments": Object {
+          "nodes": Array [],
+        },
+        "email": "paul@example.com",
+        "name": "Paul",
+        "posts": Object {
+          "nodes": Array [
+            Object {
+              "comments": Object {
+                "nodes": Array [],
+              },
+              "title": "Welcome to the new Blog!",
+              "upvotes": 17,
+            },
+          ],
+        },
+        "questions": Object {
+          "nodes": Array [],
+        },
+      },
+    ],
+  },
+}
+`;
+
+exports[`the example code should find the user by name 1`] = `
 Object {
   "nodes": Array [
     Object {
@@ -84,68 +353,7 @@ Object {
 }
 `;
 
-exports[`should handle the example code should find the user by name: Select authors and their posts 1`] = `
-Array [
-  Array [
-    Object {
-      "email": "georg@example.com",
-      "name": "Georg",
-      "posts": Object {
-        "nodes": Array [
-          Object {
-            "comments": Object {
-              "nodes": Array [
-                Object {
-                  "commentor": Object {
-                    "name": "Georg",
-                  },
-                  "msg": "I believe!",
-                },
-              ],
-            },
-            "text": "I think that is a fair question, GraphQL sometimes feels very alien to people.",
-            "title": "Was alien technology involved?",
-            "upvotes": 4,
-          },
-        ],
-      },
-    },
-    Object {
-      "email": "paul@example.com",
-      "name": "Paul",
-      "posts": Object {
-        "nodes": Array [
-          Object {
-            "comments": Object {
-              "nodes": Array [],
-            },
-            "text": "This is a good time to be alive, this is our new Blog. Clean code to the max!",
-            "title": "Welcome to the new Blog!",
-            "upvotes": 17,
-          },
-        ],
-      },
-    },
-  ],
-  "=== === ===",
-  "Georg [georg@example.com]: 1",
-  "=== Was alien technology involved? (4:1) ===",
-  "---
-I think that is a fair question, GraphQL sometimes feels very alien to people.
----",
-  "--> Georg: \\"I believe!\\"",
-  "=== === ===",
-  "=== === ===",
-  "Paul [paul@example.com]: 1",
-  "=== Welcome to the new Blog! (17:0) ===",
-  "---
-This is a good time to be alive, this is our new Blog. Clean code to the max!
----",
-  "=== === ===",
-]
-`;
-
-exports[`should handle the example code should have the correct schema: Schema 1`] = `
+exports[`the example code should have the correct schema 1`] = `
 "type Comment implements Node {
   id: ID
   createdAt: Date
@@ -158,8 +366,12 @@ exports[`should handle the example code should have the correct schema: Schema 1
 input CommentFilter {
   id: ID
   id_not: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
   msg: String
   msg_not: String
+  msg_in: [String!]
+  msg_not_in: [String!]
 }
 
 type Comments implements List {
@@ -182,13 +394,28 @@ enum CommentSortOrder {
   post_DESC
 }
 
+input CommentWhere {
+  id: ID
+  id_not: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  msg: String
+  msg_not: String
+  msg_in: [String!]
+  msg_not_in: [String!]
+  has_commentor: Boolean
+  matches_commentor: UserFilter
+  has_post: Boolean
+  matches_post: PostFilter
+}
+
 input CreateCommentData {
   id: ID
   createdAt: Date
   lastUpdate: Date
   msg: String
-  commentor: UserFilter
-  post: PostFilter
+  commentor: UserWhere
+  post: PostWhere
 }
 
 input CreatePostData {
@@ -198,8 +425,17 @@ input CreatePostData {
   title: String
   text: String
   upvotes: Int
-  author: UserFilter
-  comments: CommentFilter
+  author: UserWhere
+  comments: CommentWhere
+}
+
+input CreateQuestionData {
+  id: ID
+  createdAt: Date
+  lastUpdate: Date
+  answers: [String!]
+  question: String
+  author: UserWhere
 }
 
 input CreateUserData {
@@ -209,9 +445,11 @@ input CreateUserData {
   name: String
   email: String
   password: String
+  group: String
   num: Int
-  posts: PostFilter
-  comments: CommentFilter
+  posts: PostWhere
+  comments: CommentWhere
+  questions: QuestionWhere
 }
 
 \\"\\"\\"
@@ -226,14 +464,17 @@ interface List {
 
 type Mutation {
   createUser(data: CreateUserData): User
-  updateUser(data: UpdateUserData, where: UserFilter): User
-  deleteUsers(where: UserFilter, order: UserSortOrder): Users!
+  updateUser(data: UpdateUserData, where: UserWhere): User
+  deleteUsers(where: UserWhere, order: UserSortOrder): Users!
   createPost(data: CreatePostData): Post
-  updatePost(data: UpdatePostData, where: PostFilter): Post
-  deletePosts(where: PostFilter, order: PostSortOrder): Posts!
+  updatePost(data: UpdatePostData, where: PostWhere): Post
+  deletePosts(where: PostWhere, order: PostSortOrder): Posts!
   createComment(data: CreateCommentData): Comment
-  updateComment(data: UpdateCommentData, where: CommentFilter): Comment
-  deleteComments(where: CommentFilter, order: CommentSortOrder): Comments!
+  updateComment(data: UpdateCommentData, where: CommentWhere): Comment
+  deleteComments(where: CommentWhere, order: CommentSortOrder): Comments!
+  createQuestion(data: CreateQuestionData): Question
+  updateQuestion(data: UpdateQuestionData, where: QuestionWhere): Question
+  deleteQuestions(where: QuestionWhere, order: QuestionSortOrder): Questions!
 }
 
 interface Node {
@@ -260,10 +501,16 @@ type Post implements Node {
 input PostFilter {
   id: ID
   id_not: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
   title: String
   title_not: String
+  title_in: [String!]
+  title_not_in: [String!]
   text: String
   text_not: String
+  text_in: [String!]
+  text_not_in: [String!]
   upvotes: Int
   upvotes_not: Int
   upvotes_gt: Int
@@ -296,13 +543,97 @@ enum PostSortOrder {
   comments_DESC
 }
 
+input PostWhere {
+  id: ID
+  id_not: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  title: String
+  title_not: String
+  title_in: [String!]
+  title_not_in: [String!]
+  text: String
+  text_not: String
+  text_in: [String!]
+  text_not_in: [String!]
+  upvotes: Int
+  upvotes_not: Int
+  upvotes_gt: Int
+  upvotes_lt: Int
+  has_author: Boolean
+  matches_author: UserFilter
+  has_comments: Boolean
+  matches_comments: CommentFilter
+}
+
 type Query {
-  User(where: UserFilter, order: UserSortOrder): User
-  Users(where: UserFilter, order: UserSortOrder): Users!
-  Post(where: PostFilter, order: PostSortOrder): Post
-  Posts(where: PostFilter, order: PostSortOrder): Posts!
-  Comment(where: CommentFilter, order: CommentSortOrder): Comment
-  Comments(where: CommentFilter, order: CommentSortOrder): Comments!
+  User(where: UserWhere, order: UserSortOrder): User
+  Users(where: UserWhere, order: UserSortOrder): Users!
+  Post(where: PostWhere, order: PostSortOrder): Post
+  Posts(where: PostWhere, order: PostSortOrder): Posts!
+  Comment(where: CommentWhere, order: CommentSortOrder): Comment
+  Comments(where: CommentWhere, order: CommentSortOrder): Comments!
+  Question(where: QuestionWhere, order: QuestionSortOrder): Question
+  Questions(where: QuestionWhere, order: QuestionSortOrder): Questions!
+}
+
+type Question implements Node {
+  id: ID
+  createdAt: Date
+  lastUpdate: Date
+  answers: [String!]
+  question: String
+  author: User
+}
+
+input QuestionFilter {
+  id: ID
+  id_not: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  answers_contains: [String!]
+  answers_not_contains: [String!]
+  question: String
+  question_not: String
+  question_in: [String!]
+  question_not_in: [String!]
+}
+
+type Questions implements List {
+  nodes: [Question!]!
+  page: Page!
+}
+
+enum QuestionSortOrder {
+  id_ASC
+  id_DESC
+  createdAt_ASC
+  createdAt_DESC
+  lastUpdate_ASC
+  lastUpdate_DESC
+  answers_ASC
+  answers_DESC
+  question_ASC
+  question_DESC
+  userId_ASC
+  userId_DESC
+  author_ASC
+  author_DESC
+}
+
+input QuestionWhere {
+  id: ID
+  id_not: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  answers_contains: [String!]
+  answers_not_contains: [String!]
+  question: String
+  question_not: String
+  question_in: [String!]
+  question_not_in: [String!]
+  has_author: Boolean
+  matches_author: UserFilter
 }
 
 input UpdateCommentData {
@@ -310,8 +641,8 @@ input UpdateCommentData {
   createdAt: Date
   lastUpdate: Date
   msg: String
-  commentor: CommentFilter
-  post: CommentFilter
+  commentor: CommentWhere
+  post: CommentWhere
 }
 
 input UpdatePostData {
@@ -321,8 +652,17 @@ input UpdatePostData {
   title: String
   text: String
   upvotes: Int
-  author: PostFilter
-  comments: PostFilter
+  author: PostWhere
+  comments: PostWhere
+}
+
+input UpdateQuestionData {
+  id: ID
+  createdAt: Date
+  lastUpdate: Date
+  answers: [String!]
+  question: String
+  author: QuestionWhere
 }
 
 input UpdateUserData {
@@ -332,9 +672,11 @@ input UpdateUserData {
   name: String
   email: String
   password: String
+  group: String
   num: Int
-  posts: UserFilter
-  comments: UserFilter
+  posts: UserWhere
+  comments: UserWhere
+  questions: UserWhere
 }
 
 type User implements Node {
@@ -344,20 +686,34 @@ type User implements Node {
   name: String
   email: String
   password: String
+  group: String
   num: Int
   posts: Posts
   comments: Comments
+  questions: Questions
 }
 
 input UserFilter {
   id: ID
   id_not: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
   name: String
   name_not: String
+  name_in: [String!]
+  name_not_in: [String!]
   email: String
   email_not: String
+  email_in: [String!]
+  email_not_in: [String!]
   password: String
   password_not: String
+  password_in: [String!]
+  password_not_in: [String!]
+  group: String
+  group_not: String
+  group_in: [String!]
+  group_not_in: [String!]
   num: Int
   num_not: Int
   num_gt: Int
@@ -382,12 +738,49 @@ enum UserSortOrder {
   email_DESC
   password_ASC
   password_DESC
+  group_ASC
+  group_DESC
   num_ASC
   num_DESC
   posts_ASC
   posts_DESC
   comments_ASC
   comments_DESC
+  questions_ASC
+  questions_DESC
+}
+
+input UserWhere {
+  id: ID
+  id_not: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  name: String
+  name_not: String
+  name_in: [String!]
+  name_not_in: [String!]
+  email: String
+  email_not: String
+  email_in: [String!]
+  email_not_in: [String!]
+  password: String
+  password_not: String
+  password_in: [String!]
+  password_not_in: [String!]
+  group: String
+  group_not: String
+  group_in: [String!]
+  group_not_in: [String!]
+  num: Int
+  num_not: Int
+  num_gt: Int
+  num_lt: Int
+  has_posts: Boolean
+  matches_posts: PostFilter
+  has_comments: Boolean
+  matches_comments: CommentFilter
+  has_questions: Boolean
+  matches_questions: QuestionFilter
 }
 "
 `;

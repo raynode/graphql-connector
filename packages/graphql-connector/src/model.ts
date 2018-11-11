@@ -16,7 +16,7 @@ export type AssociationFieldType = 'Association'
 export type FieldType = AttributeFieldType | AssociationFieldType
 export type Mutations = 'create' | 'update' | 'delete'
 export type Queries = 'findOne' | 'findMany'
-export type DataTypes = 'type' | 'where' | 'data' | 'create'
+export type DataTypes = 'type' | 'where' | 'data' | 'create' | 'filter'
 
 export interface ModelFields {
   type: GraphQLObjectType
@@ -43,13 +43,14 @@ export interface ExtendedModel<Types, Models> extends AnyModel<Types, Models> {
   queryTypes: Record<Queries, GraphQLObjectType>
   types: ModelFields
   dataTypes: Record<DataTypes, any>
+  filterType: GraphQLInputObjectType
   genericFields: GenericField[]
   names: Names
   argsFields: ArgsFields
 }
 
 export interface GenericField {
-  // list: boolean
+  list: boolean
   fieldType: FieldType
   name: string
   nonNull: boolean
@@ -113,6 +114,7 @@ export interface Model<Attrs, Assocs, Types, Models, Inst> {
   associations: Associations<Inst, Assocs, Models>
   fields: Array<BaseField<Types, Models, Inst>>
   resolvers: ModelResolver<Inst>
+  source: Models[keyof Models]
 }
 export type AnyModel<Types, Models, Inst = any> = Model<any, any, Types, Models, Inst>
 
@@ -151,7 +153,7 @@ export const modelCreator = <Types, Models>() => <Name extends keyof Models, Ins
   partialAttributes: PartialAttributes<Inst, Attrs, Types> = {} as any,
   partialAssociations: PartialAssociations<Inst, Assocs, Models> = {} as any,
   resolvers: ModelResolver<Inst>,
-  source?: any,
+  source: Models[Name],
 ): Model<Attrs, Assocs, Types, Models, Inst> => {
   const attributes = applyToRecordOf(partialAttributes, completeAttribute)
   const associations = applyToRecordOf(partialAssociations, completeAssociation)
@@ -172,5 +174,5 @@ export const modelCreator = <Types, Models>() => <Name extends keyof Models, Ins
         }),
       ),
     )
-  return { attributes, associations, name, fields, resolvers }
+  return { attributes, associations, name, fields, resolvers, source }
 }

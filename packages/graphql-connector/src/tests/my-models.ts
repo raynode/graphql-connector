@@ -2,7 +2,8 @@
 
 import * as myTypes from './my-types'
 
-const idGenerator = (type: string) => `${type}:${Math.random()}`
+let lastId = 1
+const idGenerator = (type: string) => `${type}:${lastId++}`
 
 export type DBTypeRecord<Attrs extends string = string> = Record<Attrs, myTypes.DBType>
 
@@ -63,13 +64,18 @@ export class Instance<Attrs, M extends Model<DBTypeRecord>> {
     this.attributes = {
       ...(attributes as any),
       id: idGenerator(model.name),
-      createdAt: new Date(),
-      lastUpdate: new Date(),
+      createdAt: new Date(2018, 9, 1),
+      lastUpdate: new Date(2018, 9, 1),
     }
   }
 
   public get<Key extends (keyof ExtractAttrs<M>) | (keyof BasicAttrs)>(attr: Key) {
     return this.attributes[attr]
+  }
+
+  // add an inspect method to your instances or models to make it nicer to debug the data inside
+  public inspect() {
+    return `${this.model.name} (${JSON.stringify(this.attributes, null, 2)})`
   }
 }
 
@@ -114,12 +120,18 @@ export class Model<Attrs extends DBTypeRecord> {
   public findOne(filterFn: (instance: Instance<Attrs, Model<any>>) => boolean) {
     return Database.findOne(instance => instance.model.name === this.name && filterFn(instance))
   }
+
+  // add an inspect method to your instances or models to make it nicer to debug the data inside
+  public inspect() {
+    return `${this.name} (${Object.keys(this.attributes)})`
+  }
 }
 
 const DBUserModel = new Model('User', {
   name: new myTypes.DBStringType(),
   email: new myTypes.DBStringType(),
   password: new myTypes.DBStringType(),
+  group: new myTypes.DBStringType(),
   num: new myTypes.DBIntType(),
 })
 
@@ -130,7 +142,12 @@ const DBPostModel = new Model('Post', {
   userId: null,
 })
 
-// Renamed the Model-Name
+const DBQuestionModel = new Model('Question', {
+  answers: new myTypes.DBListType(new myTypes.DBStringType()),
+  question: new myTypes.DBStringType(),
+  userId: null,
+})
+
 const DBCommentModel = new Model('Comment', {
   msg: new myTypes.DBStringType(),
   commentor: null,
@@ -140,6 +157,7 @@ const DBCommentModel = new Model('Comment', {
 // The user is the main model, every other model connects to the user by the user.id field
 DBUserModel.hasMany(DBPostModel, 'posts', 'userId') // a post has a userId field
 DBUserModel.hasMany(DBCommentModel, 'comments', 'commentor') // a comment has a commentor field
+DBUserModel.hasMany(DBQuestionModel, 'questions', 'userId')
 
 // A Post is a 2nd class model, it belongs to a specific user by userId and has many comments
 DBPostModel.belongsTo(DBUserModel, 'author', 'userId')
@@ -149,8 +167,12 @@ DBPostModel.hasMany(DBCommentModel, 'comments', 'post')
 DBCommentModel.hasOne(DBUserModel, 'commentor')
 DBCommentModel.hasOne(DBPostModel, 'post')
 
+// A Question is a 2nd Class model, it belongs to a specific user and has a list of possible answers
+DBQuestionModel.belongsTo(DBUserModel, 'author', 'userId')
+
 export const models = {
   User: DBUserModel,
   Post: DBPostModel,
   Comment: DBCommentModel,
+  Question: DBQuestionModel,
 }

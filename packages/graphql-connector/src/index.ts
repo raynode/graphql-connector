@@ -1,6 +1,7 @@
 export * from './base-schema-generator'
 export * from './naming-strategy'
 export * from './type-converter'
+export * from './filter-field-generator'
 export * from './model'
 export * from './model-mapper'
 export * from './utils'

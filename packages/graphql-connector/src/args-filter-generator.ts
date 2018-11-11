@@ -37,6 +37,10 @@ export const createArgsFields = <Types, Models>(model: ExtendedModel<Types, Mode
     name: names.types.whereType,
     fields: () => model.dataTypes.where,
   }),
+  filter: new GraphQLInputObjectType({
+    name: names.types.filterType,
+    fields: () => model.dataTypes.filter,
+  }),
   order: new GraphQLEnumType({
     name: names.types.orderType,
     values: buildOrderEnumValues(model),

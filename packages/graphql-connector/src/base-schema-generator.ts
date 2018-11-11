@@ -1,5 +1,12 @@
 import { createArgsFields } from './args-filter-generator'
-import { applyFilterMapper, defaultFilterMapper, FilterMapper } from './filter-field-generator'
+import {
+  applyFilterMapper,
+  applyFilterParser,
+  createDefaultFilterParser,
+  defaultFilterMapper,
+  FilterMapper,
+  FilterParser,
+} from './filter-field-generator'
 import { ListType, NodeType, PageInputType, PageType } from './generic-types'
 import { AnyModel, ExtendedModel, GenericField, Model } from './model'
 import { GeneratedModelMapper } from './model-mapper'
@@ -30,6 +37,7 @@ export interface PartialGeneratorConfiguration<Types, Models> {
   namingStrategy?: NamingStrategy
   typeMapper: TypeMapper<Types, Models>
   filterMapper?: FilterMapper
+  filterParser?: FilterParser<Types, Models>
 }
 
 export interface BaseSchema {
@@ -45,6 +53,7 @@ export const createBaseSchemaGenerator = <Types, Models>(
 ): BaseSchemaGenerator<Types, Models> => {
   const configuration: GeneratorConfiguration<Types, Models> = {
     filterMapper: defaultFilterMapper,
+    filterParser: createDefaultFilterParser<Types, Models>(),
     namingStrategy: defaultNamingStrategy,
     ...partialConfiguration,
   }
@@ -107,6 +116,7 @@ export const createBaseSchemaGenerator = <Types, Models>(
           const association = model.associations[field.name]
           fields.push({
             type,
+            list: field.list,
             fieldType: field.fieldType,
             name: field.name,
             nonNull: field.nonNull,
@@ -127,14 +137,23 @@ export const createBaseSchemaGenerator = <Types, Models>(
           create[name] = fieldType === 'Attribute' ? { type } : { type: model.argsFields.where }
           return create
         }, {}),
+        filter: fields.reduce(
+          (filter, { name, fieldType, type }) => ({
+            ...filter,
+            ...(fieldType === 'Association' ? null : filterMapper(name, type, false)),
+          }),
+          {},
+        ),
         data: fields.reduce((data, { name, type, fieldType }) => {
           data[name] = fieldType === 'Attribute' ? { type } : { type: model.argsFields.where }
           return data
         }, {}),
         where: fields.reduce(
-          (where, { name, fieldType, type }) => ({
+          (where, { name, type, fieldType, model }) => ({
             ...where,
-            ...(fieldType === 'Association' ? null : filterMapper(name, type)),
+            ...(fieldType === 'Association'
+              ? filterMapper(name, model.argsFields.filter, true)
+              : filterMapper(name, type, false)),
           }),
           {},
         ),
@@ -146,12 +165,22 @@ export const createBaseSchemaGenerator = <Types, Models>(
       const model = getModel(name)
       const names = configuration.namingStrategy(name)
 
+      const filterParser = applyFilterParser(configuration.filterParser)(model)
+
       queryFields[names.fields.findOne] = {
         args: {
           [names.arguments.where]: { type: model.argsFields.where },
           [names.arguments.order]: { type: model.argsFields.order },
         },
-        resolve: model.resolvers.findOne,
+        resolve: (_, { where }, context, info) =>
+          model.resolvers.findOne(
+            _,
+            {
+              where: filterParser('where', where),
+            },
+            context,
+            info,
+          ),
         type: model.types.type,
       }
 
@@ -160,7 +189,15 @@ export const createBaseSchemaGenerator = <Types, Models>(
           [names.arguments.where]: { type: model.argsFields.where },
           [names.arguments.order]: { type: model.argsFields.order },
         },
-        resolve: model.resolvers.findMany,
+        resolve: (_, { where }, context, info) =>
+          model.resolvers.findMany(
+            _,
+            {
+              where: filterParser('where', where),
+            },
+            context,
+            info,
+          ),
         type: new GraphQLNonNull(model.types.list),
       }
 
@@ -171,9 +208,19 @@ export const createBaseSchemaGenerator = <Types, Models>(
       const model = getModel(name)
       const names = configuration.namingStrategy(name)
 
+      const filterParser = applyFilterParser(configuration.filterParser)(model)
+
       mutationFields[names.fields.create] = {
         args: { [names.arguments.data]: { type: model.argsFields.create } },
-        resolve: model.resolvers.create,
+        resolve: (_, { data }, context, info) =>
+          model.resolvers.create(
+            _,
+            {
+              data: filterParser('create', data),
+            },
+            context,
+            info,
+          ),
         type: model.types.type,
       }
 
