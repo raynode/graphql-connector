@@ -99,5 +99,5 @@ export const applyFilterParser = <Types, Models>(filterParser: FilterParser<Type
   model: ExtendedModel<Types, Models>,
 ) => (mode: FilterMapperMode, data: Record<string, any>) =>
   data
-    ? Object.keys(data).reduce((result, name) => filterParser(mode, model.source, name, data[name], data), data)
+    ? Object.keys(data).reduce((filters, name) => filterParser(mode, model.source, name, data[name], filters), {})
     : data

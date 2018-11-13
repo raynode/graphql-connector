@@ -24,6 +24,7 @@ describe('model', () => {
         },
       },
       {} as any,
+      {},
     )
     const other = creator(
       'Other',
@@ -35,6 +36,7 @@ describe('model', () => {
       },
       {},
       {} as any,
+      {},
     )
     expect(sample.attributes.text.type).toEqual('string')
     expect(other.attributes.number.type).toEqual('int')

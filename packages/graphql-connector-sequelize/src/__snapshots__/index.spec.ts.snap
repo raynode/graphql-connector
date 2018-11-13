@@ -3,28 +3,97 @@
 exports[`schema should correctly load the data 1`] = `
 Array [
   Object {
-    "createdAt": "2018-11-09 16:35:47.055 +00:00",
+    "createdAt": "2018-11-09T16:00:00.000Z",
     "email": "admin@example.com",
-    "id": "1",
+    "id": "1010101010101010-10101010-4101010-8101010-101010101010101010101010",
     "name": "Admin",
     "nickname": "Admin",
     "state": "admin",
-    "updatedAt": "2018-11-09 16:35:47.055 +00:00",
+    "updatedAt": "2018-11-09T16:00:00.000Z",
+  },
+  Object {
+    "createdAt": "2018-11-09T16:30:00.000Z",
+    "email": "georg@example.com",
+    "id": "2020202020202020-20202020-4202020-8202020-202020202020202020202020",
+    "name": "Georg",
+    "nickname": "Mr.G!",
+    "state": "member",
+    "updatedAt": "2018-11-09T16:30:00.000Z",
+  },
+  Object {
+    "createdAt": "2018-11-09T16:40:00.000Z",
+    "email": "paul@example.com",
+    "id": "3030303030303030-30303030-4303030-8303030-303030303030303030303030",
+    "name": "Paul",
+    "nickname": "Paulchen",
+    "state": null,
+    "updatedAt": "2018-11-09T16:40:00.000Z",
+  },
+  Object {
+    "createdAt": "2018-11-09T16:50:00.000Z",
+    "email": "frank@example.com",
+    "id": "4040404040404040-40404040-4404040-8404040-404040404040404040404040",
+    "name": "Frank",
+    "nickname": "Effy",
+    "state": "member",
+    "updatedAt": "2018-11-09T16:50:00.000Z",
   },
 ]
 `;
 
 exports[`schema should create a new user 1`] = `
 Object {
-  "newUser": Object {
-    "email": "george@example.com",
-    "id": "2030405060708090-a0b0c0d0-4e0f0100-8120130140-1501601701801901a01b01c01d01e01f0200",
-    "name": "George",
+  "newUser": null,
+}
+`;
+
+exports[`schema should find all posts and their authors 1`] = `
+Object {
+  "Posts": Object {
+    "nodes": Array [
+      Object {
+        "User": Object {
+          "name": "Admin",
+        },
+        "title": "This is a Post by the Admin",
+      },
+      Object {
+        "User": Object {
+          "name": "Paul",
+        },
+        "title": "This is by Paulchen",
+      },
+    ],
   },
 }
 `;
 
 exports[`schema should find only Georg 1`] = `null`;
+
+exports[`schema should find the users in ascending order of id 1`] = `
+Object {
+  "Users": Object {
+    "nodes": Array [
+      Object {
+        "id": "1010101010101010-10101010-4101010-8101010-101010101010101010101010",
+        "name": "Admin",
+      },
+      Object {
+        "id": "2020202020202020-20202020-4202020-8202020-202020202020202020202020",
+        "name": "Georg",
+      },
+      Object {
+        "id": "3030303030303030-30303030-4303030-8303030-303030303030303030303030",
+        "name": "Paul",
+      },
+      Object {
+        "id": "4040404040404040-40404040-4404040-8404040-404040404040404040404040",
+        "name": "Frank",
+      },
+    ],
+  },
+}
+`;
 
 exports[`schema should generate a full schema 1`] = `
 "input CreateLoopData {
@@ -32,7 +101,16 @@ exports[`schema should generate a full schema 1`] = `
   createdAt: Date
   updatedAt: Date
   nextId: ID
-  next: LoopFilter
+  next: LoopWhere
+}
+
+input CreatePostData {
+  id: ID
+  title: String
+  createdAt: Date
+  updatedAt: Date
+  UserId: ID
+  User: UserWhere
 }
 
 input CreateUserData {
@@ -43,6 +121,7 @@ input CreateUserData {
   email: String
   createdAt: Date
   updatedAt: Date
+  Posts: PostWhere
 }
 
 \\"\\"\\"
@@ -65,9 +144,9 @@ type Loop implements Node {
 
 input LoopFilter {
   id: ID
-  id_not: ID
+  id_in: [ID!]
   nextId: ID
-  nextId_not: ID
+  nextId_in: [ID!]
 }
 
 type Loops implements List {
@@ -88,13 +167,25 @@ enum LoopSortOrder {
   next_DESC
 }
 
+input LoopWhere {
+  id: ID
+  id_in: [ID!]
+  nextId: ID
+  nextId_in: [ID!]
+  next_empty: LoopFilter
+  next_some: LoopFilter
+}
+
 type Mutation {
-  createLoop(data: CreateLoopData): Loop
-  updateLoop(data: UpdateLoopData, where: LoopFilter): Loop
-  deleteLoops(where: LoopFilter, order: LoopSortOrder): Loops!
   createUser(data: CreateUserData): User
-  updateUser(data: UpdateUserData, where: UserFilter): User
-  deleteUsers(where: UserFilter, order: UserSortOrder): Users!
+  updateUser(data: UpdateUserData, where: UserWhere): User
+  deleteUsers(where: UserWhere, order: UserSortOrder): Users!
+  createLoop(data: CreateLoopData): Loop
+  updateLoop(data: UpdateLoopData, where: LoopWhere): Loop
+  deleteLoops(where: LoopWhere, order: LoopSortOrder): Loops!
+  createPost(data: CreatePostData): Post
+  updatePost(data: UpdatePostData, where: PostWhere): Post
+  deletePosts(where: PostWhere, order: PostSortOrder): Posts!
 }
 
 interface Node {
@@ -107,11 +198,68 @@ type Page {
   offset: Int
 }
 
+type Post implements Node {
+  id: ID!
+  title: String
+  createdAt: Date!
+  updatedAt: Date!
+  UserId: ID
+  User: User!
+}
+
+input PostFilter {
+  id: ID
+  id_in: [ID!]
+  title: String
+  title_in: [String!]
+  title_like: [String!]
+  title_startsWith: [String!]
+  title_endsWith: [String!]
+  UserId: ID
+  UserId_in: [ID!]
+}
+
+type Posts implements List {
+  nodes: [Post!]!
+  page: Page!
+}
+
+enum PostSortOrder {
+  id_ASC
+  id_DESC
+  title_ASC
+  title_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  UserId_ASC
+  UserId_DESC
+  User_ASC
+  User_DESC
+}
+
+input PostWhere {
+  id: ID
+  id_in: [ID!]
+  title: String
+  title_in: [String!]
+  title_like: [String!]
+  title_startsWith: [String!]
+  title_endsWith: [String!]
+  UserId: ID
+  UserId_in: [ID!]
+  User_empty: UserFilter
+  User_some: UserFilter
+}
+
 type Query {
-  Loop(where: LoopFilter, order: LoopSortOrder): Loop
-  Loops(where: LoopFilter, order: LoopSortOrder): Loops!
-  User(where: UserFilter, order: UserSortOrder): User
-  Users(where: UserFilter, order: UserSortOrder): Users!
+  User(where: UserWhere, order: UserSortOrder): User
+  Users(where: UserWhere, order: UserSortOrder): Users!
+  Loop(where: LoopWhere, order: LoopSortOrder): Loop
+  Loops(where: LoopWhere, order: LoopSortOrder): Loops!
+  Post(where: PostWhere, order: PostSortOrder): Post
+  Posts(where: PostWhere, order: PostSortOrder): Posts!
 }
 
 input UpdateLoopData {
@@ -119,7 +267,16 @@ input UpdateLoopData {
   createdAt: Date
   updatedAt: Date
   nextId: ID
-  next: LoopFilter
+  next: LoopWhere
+}
+
+input UpdatePostData {
+  id: ID
+  title: String
+  createdAt: Date
+  updatedAt: Date
+  UserId: ID
+  User: PostWhere
 }
 
 input UpdateUserData {
@@ -130,6 +287,7 @@ input UpdateUserData {
   email: String
   createdAt: Date
   updatedAt: Date
+  Posts: UserWhere
 }
 
 type User implements Node {
@@ -140,17 +298,27 @@ type User implements Node {
   email: String!
   createdAt: Date!
   updatedAt: Date!
+  Posts: Posts
 }
 
 input UserFilter {
   id: ID
-  id_not: ID
+  id_in: [ID!]
   nickname: String
-  nickname_not: String
+  nickname_in: [String!]
+  nickname_like: [String!]
+  nickname_startsWith: [String!]
+  nickname_endsWith: [String!]
   name: String
-  name_not: String
+  name_in: [String!]
+  name_like: [String!]
+  name_startsWith: [String!]
+  name_endsWith: [String!]
   email: String
-  email_not: String
+  email_in: [String!]
+  email_like: [String!]
+  email_startsWith: [String!]
+  email_endsWith: [String!]
 }
 
 type Users implements List {
@@ -173,12 +341,36 @@ enum UserSortOrder {
   createdAt_DESC
   updatedAt_ASC
   updatedAt_DESC
+  Posts_ASC
+  Posts_DESC
 }
 
 enum UserStateEnumType {
   admin
   member
   guest
+}
+
+input UserWhere {
+  id: ID
+  id_in: [ID!]
+  nickname: String
+  nickname_in: [String!]
+  nickname_like: [String!]
+  nickname_startsWith: [String!]
+  nickname_endsWith: [String!]
+  name: String
+  name_in: [String!]
+  name_like: [String!]
+  name_startsWith: [String!]
+  name_endsWith: [String!]
+  email: String
+  email_in: [String!]
+  email_like: [String!]
+  email_startsWith: [String!]
+  email_endsWith: [String!]
+  Posts_empty: PostFilter
+  Posts_some: PostFilter
 }
 "
 `;
@@ -187,17 +379,31 @@ exports[`schema should now find Georg as well 1`] = `
 Array [
   Object {
     "email": "admin@example.com",
-    "id": "1",
+    "id": "1010101010101010-10101010-4101010-8101010-101010101010101010101010",
     "name": "Admin",
     "nickname": "Admin",
     "state": "admin",
   },
   Object {
-    "email": "george@example.com",
-    "id": "2030405060708090-a0b0c0d0-4e0f0100-8120130140-1501601701801901a01b01c01d01e01f0200",
-    "name": "George",
-    "nickname": null,
-    "state": "guest",
+    "email": "georg@example.com",
+    "id": "2020202020202020-20202020-4202020-8202020-202020202020202020202020",
+    "name": "Georg",
+    "nickname": "Mr.G!",
+    "state": "member",
+  },
+  Object {
+    "email": "paul@example.com",
+    "id": "3030303030303030-30303030-4303030-8303030-303030303030303030303030",
+    "name": "Paul",
+    "nickname": "Paulchen",
+    "state": null,
+  },
+  Object {
+    "email": "frank@example.com",
+    "id": "4040404040404040-40404040-4404040-8404040-404040404040404040404040",
+    "name": "Frank",
+    "nickname": "Effy",
+    "state": "member",
   },
 ]
 `;

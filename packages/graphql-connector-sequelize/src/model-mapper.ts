@@ -66,21 +66,23 @@ export const modelMapper = createModelMapper<DataTypes, Models>((model, addAttri
       model: association.target.name,
       list: association.associationType === 'HasMany' || association.associationType === 'BelongsToMany',
       nonNull: association.associationType === 'BelongsTo' || association.associationType === 'BelongsToMany',
-      resolver: () => null,
+      resolver: async (instance, args, context, info) => {
+        // console.log(info.fieldName, info.fieldNodes)
+        // console.log(rawModel, association)
+        // console.log(`get${association.as}`, instance[`get${association.as}`])
+        return instance[`get${association.as}`]()
+      },
     })
   })
 
   return {
     create: async (_, { data }) => model.create(data),
     delete: async () => null,
-    findMany: async (_, args) => {
-      console.log('FIND MANY')
-      const {
-        page = {
-          limit: 100,
-          offset: 0,
-        },
-      } = args
+    findMany: async (_, { where, page = {
+      limit: 100,
+      offset: 0,
+    }}) => {
+      console.log('FIND MANY', where, page)
       const { count, rows: nodes } = await model.findAndCount()
       return {
         nodes,

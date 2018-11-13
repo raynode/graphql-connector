@@ -1,0 +1,207 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`filter mapping should create all filter mappings for basic types: boolean 1`] = `
+Object {
+  "boolean": Object {
+    "type": "Boolean",
+  },
+}
+`;
+
+exports[`filter mapping should create all filter mappings for basic types: float 1`] = `
+Object {
+  "float": Object {
+    "type": "Float",
+  },
+  "float_gt": Object {
+    "type": "Float",
+  },
+  "float_lt": Object {
+    "type": "Float",
+  },
+}
+`;
+
+exports[`filter mapping should create all filter mappings for basic types: id 1`] = `
+Object {
+  "id": Object {
+    "type": "ID",
+  },
+  "id_in": Object {
+    "type": "[ID!]",
+  },
+}
+`;
+
+exports[`filter mapping should create all filter mappings for basic types: int 1`] = `
+Object {
+  "int": Object {
+    "type": "Int",
+  },
+  "int_gt": Object {
+    "type": "Int",
+  },
+  "int_lt": Object {
+    "type": "Int",
+  },
+}
+`;
+
+exports[`filter mapping should create all filter mappings for basic types: string 1`] = `
+Object {
+  "string": Object {
+    "type": "String",
+  },
+  "string_endsWith": Object {
+    "type": "[String!]",
+  },
+  "string_in": Object {
+    "type": "[String!]",
+  },
+  "string_like": Object {
+    "type": "[String!]",
+  },
+  "string_startsWith": Object {
+    "type": "[String!]",
+  },
+}
+`;
+
+exports[`filter parsing should parse correctly 1`] = `
+Object {
+  "int": Object {
+    Symbol(gt): 1,
+    Symbol(lt): 10,
+  },
+}
+`;
+
+exports[`filter parsing should parse correctly 2`] = `
+Object {
+  "int": Object {
+    Symbol(eq): 4,
+  },
+}
+`;
+
+exports[`filter parsing should parse correctly 3`] = `
+Object {
+  "id": Object {
+    Symbol(in): Array [
+      1,
+      2,
+      3,
+    ],
+  },
+}
+`;
+
+exports[`filter parsing should parse correctly 4`] = `
+Object {
+  "id": Object {
+    Symbol(eq): "test",
+  },
+}
+`;
+
+exports[`filter parsing should parse correctly 5`] = `
+Object {
+  "string": Object {
+    Symbol(eq): "test",
+  },
+}
+`;
+
+exports[`filter parsing should parse correctly 6`] = `
+Object {
+  "string": Object {
+    Symbol(in): Array [
+      "a",
+      "b",
+    ],
+  },
+}
+`;
+
+exports[`filter parsing should parse correctly 7`] = `
+Object {
+  "string": Object {
+    Symbol(like): "%at%",
+  },
+}
+`;
+
+exports[`filter parsing should parse correctly 8`] = `
+Object {
+  "string": Object {
+    Symbol(like): "%at",
+  },
+}
+`;
+
+exports[`filter parsing should parse correctly 9`] = `
+Object {
+  "string": Object {
+    Symbol(like): "at%",
+  },
+}
+`;
+
+exports[`filter parsing should parse correctly 10`] = `
+Object {
+  "boolean": Object {
+    Symbol(eq): true,
+  },
+}
+`;
+
+exports[`filter parsing should parse correctly 11`] = `
+Object {
+  "not": Object {
+    Symbol(not): Object {
+      "int": Object {
+        Symbol(gt): 1,
+        Symbol(lt): 10,
+      },
+    },
+  },
+}
+`;
+
+exports[`filter parsing should parse correctly 12`] = `
+Object {
+  "and": Object {
+    Symbol(and): Array [
+      Object {
+        "int": Object {
+          Symbol(gt): 1,
+        },
+      },
+      Object {
+        "int": Object {
+          Symbol(lt): 10,
+        },
+      },
+    ],
+  },
+}
+`;
+
+exports[`filter parsing should parse correctly 13`] = `
+Object {
+  "or": Object {
+    Symbol(or): Array [
+      Object {
+        "int": Object {
+          Symbol(gt): 1,
+        },
+      },
+      Object {
+        "int": Object {
+          Symbol(lt): 10,
+        },
+      },
+    ],
+  },
+}
+`;

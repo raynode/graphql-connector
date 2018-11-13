@@ -156,6 +156,7 @@ export const createBaseSchemaGenerator = <Types, Models>(
               : filterMapper(name, type, false)),
           }),
           {},
+          // { not: filterMapper('not', model.argsFields.where, true) },
         ),
       }
     })

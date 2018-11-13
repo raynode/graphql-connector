@@ -98,8 +98,6 @@ describe('the example code', async () => {
       // in case we try to run a where filter:
       if (mode === 'where') {
         let filter: Filter<any>
-        const value = data[name]
-        delete data[name]
 
         if (name.includes('_')) {
           const [pre, post] = name.split('_')
@@ -122,12 +120,13 @@ describe('the example code', async () => {
         const model: Model<any> = myModels[type.source]
         const result = model.findOne(buildFilterFn(value))
         if (!result) throw new Error(`Could not create a new ${model.name} as ${name} could not be set`)
-        delete data[name]
+
         return {
           ...data,
           [type.targetAttribute]: result.get('id'),
         }
       }
+      data[name] = value
       return data
     }
 
@@ -253,7 +252,7 @@ describe('the example code', async () => {
     })
 
     it('should add a new question to the Database', async () => {
-      const { data } = await runQuery(`mutation newQuestion {
+      const { data, errors } = await runQuery(`mutation newQuestion {
         createQuestion(data: {
           question: "Do you like this project?"
           answers: ["Yes!", "It looks nice...", "I don't know", "What?", "42!", "Probably not"]

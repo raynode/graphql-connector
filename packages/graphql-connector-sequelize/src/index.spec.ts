@@ -2,85 +2,14 @@ import * as Sequelize from 'sequelize'
 import { typeMapper } from './type-mapper'
 import { modelMapper } from './model-mapper'
 import { graphql, GraphQLSchema, printSchema } from 'graphql'
+import { configuration } from './index'
 import { createBaseSchemaGenerator, createSchema } from '@raynode/graphql-connector'
 
-const sequelize = new Sequelize({
-  dialect: 'sqlite',
-})
-
-let seed = 1
-const random = () => ++seed
-// tslint:disable:no-bitwise
-const uuidv4 = () => 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
-  const r = random() * 16 | 0
-  const v = c === 'x' ? r : (r & 0x3 | 0x8)
-  return v.toString(16)
-})
-// tslint:enable:no-bitwise
-
-export const User = sequelize.define('User', {
-  id: {
-    type: Sequelize.UUID,
-    allowNull: false,
-    primaryKey: true,
-    unique: true,
-    comment: 'Id of the user',
-    defaultValue: () => uuidv4(),
-  },
-  state: {
-    type: Sequelize.ENUM('admin', 'member', 'guest'),
-    defaultValue: 'guest',
-  },
-  nickname: { type: Sequelize.STRING, allowNull: true },
-  name: { type: Sequelize.STRING, allowNull: false },
-  email: {
-    type: Sequelize.STRING,
-    allowNull: false,
-    unique: true,
-  },
-})
-
-export const Loop = sequelize.define('Loop', {
-  id: {
-    type: Sequelize.UUID,
-    allowNull: false,
-    primaryKey: true,
-    unique: true,
-    comment: 'Id of the user',
-    defaultValue: Sequelize.fn('gen_random_uuid'),
-  },
-})
-Loop.hasOne(Loop, {
-  as: 'next',
-})
-
-const initialize = async () => { try {
-  // tslint:disable:max-line-length
-  await sequelize.query(`DROP TABLE IF EXISTS Users;`)
-
-  await sequelize.query(`
-    CREATE TABLE Users (
-      id STRING PRIMARY KEY,
-      nickname TEXT,
-      name TEXT NOT NULL,
-      state TEXT NOT NULL,
-      email TEXT NOT NULL,
-      "createdAt" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-      "updatedAt" timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
-    );
-  `)
-
-  await sequelize.query(`
-    INSERT INTO Users (id,state,nickname,name,email,createdAt,updatedAt) VALUES ('1','admin','Admin','Admin','admin@example.com','2018-11-09 16:35:47.055 +00:00','2018-11-09 16:35:47.055 +00:00');
-  `)
-
-  // tslint:enable:max-line-length
-} catch(err) { console.error(err) } }
-const initialized = initialize()
+import { models, initialize, uuidv4 } from './tests/sample-models'
 
 describe('model-mapper', () => {
   it('should find all attributes from a model', () => {
-    const result = modelMapper('User', User)
+    const result = modelMapper('User', models.User)
     expect(result.attributes).toHaveProperty('id')
     expect(result.attributes).toHaveProperty('state')
     expect(result.attributes).toHaveProperty('nickname')
@@ -92,14 +21,14 @@ describe('model-mapper', () => {
   })
 
   it('should find the attributes of a Loop', () => {
-    const result = modelMapper('Loop', Loop)
+    const result = modelMapper('Loop', models.Loop)
     expect(result.attributes).toHaveProperty('id')
     expect(result.attributes).toHaveProperty('createdAt')
     expect(result.attributes).toHaveProperty('updatedAt')
   })
 
   it('should find the association of a Loop', () => {
-    const result = modelMapper('Loop', Loop)
+    const result = modelMapper('Loop', models.Loop)
     expect(result.associations).toHaveProperty('next')
   })
 })
@@ -108,11 +37,11 @@ describe('schema', () => {
   let schema: GraphQLSchema
   const runQuery = async (query: string) => graphql(schema, query, null, null)
 
-  beforeAll(() => initialized)
+  beforeAll(() => initialize())
 
   beforeEach(async () => {
-    const baseSchemaGenerator = createBaseSchemaGenerator({ typeMapper, modelMapper })
-    const baseSchema = baseSchemaGenerator({ Loop, User })
+    const baseSchemaGenerator = createBaseSchemaGenerator(configuration)
+    const baseSchema = baseSchemaGenerator(models)
     schema = createSchema(baseSchema)
   })
 
@@ -122,17 +51,15 @@ describe('schema', () => {
 
   it('should correctly load the data', async () => {
     const { data } = await runQuery(`{
-      Users {
-        nodes {
-          id
-          state
-          nickname
-          name
-          email
-          createdAt
-          updatedAt
-        }
-      }
+      Users { nodes {
+        id
+        state
+        nickname
+        name
+        email
+        createdAt
+        updatedAt
+      } }
     }`)
     expect(data.Users.nodes).toMatchSnapshot()
   })
@@ -142,12 +69,13 @@ describe('schema', () => {
     const { data, errors } = await runQuery(`
       mutation {
         newUser: createUser(data: {
-          name: "George"
-          email: "george@example.com"
-
+          name: "Jack"
+          nickname: "Jacky"
+          email: "jack@example.com"
         }) {
           id
           name
+          nickname
           email
         }
       }
@@ -157,15 +85,13 @@ describe('schema', () => {
 
   it('should now find Georg as well', async () => {
     const { data } = await runQuery(`{
-      Users {
-        nodes {
-          id
-          state
-          nickname
-          name
-          email
-        }
-      }
+      Users { nodes {
+        id
+        state
+        nickname
+        name
+        email
+      } }
     }`)
     expect(data.Users.nodes).toMatchSnapshot()
   })
@@ -173,7 +99,7 @@ describe('schema', () => {
   it('should find only Georg', async () => {
     const { data } = await runQuery(`{
       georg: User(where: {
-        name: "Georg"
+        name: "Jack"
       }) {
         id
         state
@@ -184,4 +110,48 @@ describe('schema', () => {
     }`)
     expect(data.georg).toMatchSnapshot()
   })
+
+  it('should find the users in ascending order of id', async () => {
+    const { data } = await runQuery(`{
+      Users(order: id_ASC) { nodes { id name } }
+    }`)
+    expect(data.Users.nodes[0].id).toEqual(uuidv4(1))
+    expect(data).toMatchSnapshot()
+  })
+
+  it.skip('should find the users in descending order of id', async () => {
+    const { data } = await runQuery(`{
+      Users(order: id_DESC) { nodes { id name } }
+    }`)
+    expect(data.Users.nodes[0].id).toEqual(uuidv4(4))
+    expect(data).toMatchSnapshot()
+  })
+
+  it('should find all posts and their authors', async () => {
+    const { data, errors } = await runQuery(`{
+      Posts { nodes {
+        title
+        User {
+          name
+        }
+      }}
+    }`)
+    expect(data).toMatchSnapshot()
+  })
+
+  it('should find all users that have written a post', async () => {
+    const { data, errors } = await runQuery(`{
+      Users(where: {
+        Posts_some: { not: { id: "" }}
+      }) { nodes {
+        name
+        Posts { nodes {
+          title
+        }}
+      }}
+    }`)
+    console.log(errors)
+    // expect(data).toMatchSnapshot()
+  })
+
 })

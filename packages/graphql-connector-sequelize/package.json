@@ -39,12 +39,12 @@
     "@raynode/graphql-connector": "^0.5.3",
     "@types/lodash": "^4.14.118",
     "@types/sequelize": "^4.27.30",
+    "graphql": "^14.0.2",
     "lodash": "^4.17.11",
     "sequelize": "^4.41.1"
   },
   "devDependencies": {
     "@types/jest": "^23.3.9",
-    "graphql": "^14.0.2",
     "husky": "^1.1.3",
     "jest": "^23.6.0",
     "lint-staged": "^8.0.4",

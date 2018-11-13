@@ -81,11 +81,12 @@ describe('type-mapper', () => {
   validConstructors.forEach(name => {
     it(`should handle ${name}`, () => {
       const Constructor = Constructors[name]
-      const attr: Attribute<DataTypes> = {
+      const attr: Attribute<any, DataTypes> = {
         fieldType: 'Attribute',
         list: false,
         name: 'Sample',
         nonNull: false,
+        resolver: () => null,
         type: new Constructor(),
       }
       expect(isType(typeMapper(attr, null))).toBe(true)
@@ -95,11 +96,12 @@ describe('type-mapper', () => {
   invalidConstructors.forEach(name => {
     it(`should not handle ${name}`, () => {
       const Constructor = Constructors[name]
-      const attr: Attribute<DataTypes> = {
+      const attr: Attribute<any, DataTypes> = {
         fieldType: 'Attribute',
         list: false,
         name: 'Sample',
         nonNull: false,
+        resolver: () => null,
         type: new Constructor(),
       }
       expect(() => typeMapper(attr, null)).toThrow()
@@ -109,11 +111,12 @@ describe('type-mapper', () => {
   specialConstructors.forEach(([name, args, model, result]) => {
     it(`should handle ${name}`, () => {
       const Constructor = Constructors[name]
-      const attr: Attribute<DataTypes> = {
+      const attr: Attribute<any, DataTypes> = {
         fieldType: 'Attribute',
         list: false,
         name: 'Sample',
         nonNull: false,
+        resolver: () => null,
         type: new Constructor(...args),
       }
       const type = typeMapper(attr, model)
