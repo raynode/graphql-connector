@@ -26,21 +26,11 @@ import {
   GraphQLType,
 } from 'graphql'
 
-export type ModelList<Types, Models> = Array<AnyModel<Types, Models>>
+import { applyDefaultConfiguration, GeneratorConfiguration, PartialGeneratorConfiguration } from './configuration'
 
-export interface GeneratorConfiguration<Types, Models> extends PartialGeneratorConfiguration<Types, Models> {
-  modelMapper: GeneratedModelMapper<Types, Models>
-  namingStrategy: NamingStrategy
-  typeMapper: TypeMapper<Types, Models>
-}
-export interface PartialGeneratorConfiguration<Types, Models> {
-  modelMapper: GeneratedModelMapper<Types, Models>
-  namingStrategy?: NamingStrategy
-  typeMapper: TypeMapper<Types, Models>
-  filterMapper?: FilterMapper
-  filterParser?: FilterParser<Types, Models>
-  orderMapper?: OrderMapper<any>
-}
+import { ModelFetcher, mutationFieldReducer, queryFieldReducer } from './field-reducers'
+
+export type ModelList<Types, Models> = Array<AnyModel<Types, Models>>
 
 export interface BaseSchema {
   queryFields: any
@@ -50,11 +40,11 @@ export interface BaseSchema {
 
 export type BaseSchemaGenerator<Types, Models> = (models: Models) => BaseSchema
 
-export type ModelFetcher<Types, Models> = (modelName: keyof Models) => ExtendedModel<Types, Models>
-
-const extendModelReducer = <Types, Models>(configuration: GeneratorConfiguration<Types, Models>, models: Models) => (
-  record: any,
-  name,
+const extendModelReducer = <Types, Models>(configuration: GeneratorConfiguration<Types, Models>, models: Models) => <
+  Key extends keyof Models
+>(
+  record: Record<keyof Models, ExtendedModel<Types, Models>>,
+  name: Key,
 ) => {
   const model: ExtendedModel<Types, Models> = configuration.modelMapper(name, models[name]) as any
   record[name] = model
@@ -94,6 +84,26 @@ const extendModelReducer = <Types, Models>(configuration: GeneratorConfiguration
   return record
 }
 
+const genericFieldReducer = <Types, Models>(
+  model: ExtendedModel<Types, Models>,
+  getModel: ModelFetcher<Types, Models>,
+  typeMapper: ReturnType<typeof applyTypeMapper>,
+) => (fields, field) => {
+  const type = typeMapper(field, model)
+  if (!type) return fields
+  const association = model.associations[field.name]
+  fields.push({
+    type,
+    list: field.list,
+    fieldType: field.fieldType,
+    name: field.name,
+    nonNull: field.nonNull,
+    resolver: field.resolver,
+    model: association ? getModel(association.model) : null,
+  })
+  return fields
+}
+
 const dataTypeGenerator = <Types, Models>(
   getModel: ModelFetcher<Types, Models>,
   typeMapper: ReturnType<typeof applyTypeMapper>,
@@ -101,24 +111,7 @@ const dataTypeGenerator = <Types, Models>(
 ) => <Key extends keyof Models>(name: Key) => {
   const model = getModel(name)
 
-  const fields = model.fields.reduce(
-    (fields, field) => {
-      const type = typeMapper(field, model)
-      if (!type) return fields
-      const association = model.associations[field.name]
-      fields.push({
-        type,
-        list: field.list,
-        fieldType: field.fieldType,
-        name: field.name,
-        nonNull: field.nonNull,
-        resolver: field.resolver,
-        model: association ? getModel(association.model) : null,
-      })
-      return fields
-    },
-    [] as GenericField[],
-  )
+  const fields = model.fields.reduce(genericFieldReducer(model, getModel, typeMapper), [] as GenericField[])
 
   model.dataTypes = {
     type: fields.reduce((dataFields, { name, nonNull, resolver: resolve, type: fieldType }) => {
@@ -152,152 +145,30 @@ const dataTypeGenerator = <Types, Models>(
   }
 }
 
-const queryFieldReducer = <Types, Models>(
-  getModel: ModelFetcher<Types, Models>,
-  configuration: GeneratorConfiguration<Types, Models>,
-) => (queryFields, name) => {
-  const model = getModel(name)
-  const names = configuration.namingStrategy(name)
+const baseSchemaGenerator = <Types, Models>(configuration: GeneratorConfiguration<Types, Models>) => (
+  models: Models,
+) => {
+  const filterMapper = applyFilterMapper(configuration.filterMapper)
+  const modelNames = Object.keys(models) as Array<keyof Models>
+  // 1. initialize all models
+  const record: Record<keyof Models, ExtendedModel<Types, Models>> = modelNames.reduce(
+    extendModelReducer(configuration, models),
+    {} as any,
+  )
 
-  const filterParser = applyFilterParser(configuration.filterParser)(model)
-  const orderMapper = applyFilterParser(configuration.orderMapper)
+  const getModel = (modelName: keyof Models): ExtendedModel<Types, Models> => record[modelName]
+  const typeMapper = applyTypeMapper(configuration.typeMapper, getModel)
 
-  queryFields[names.fields.findOne] = {
-    args: {
-      [names.arguments.where]: { type: model.argsFields.where },
-      [names.arguments.order]: { type: model.argsFields.order },
-    },
-    resolve: (_, { where, order }, context, info) =>
-      model.resolvers.findOne(
-        _,
-        {
-          where: filterParser('where', where),
-          order: orderMapper(order),
-        },
-        context,
-        info,
-      ),
-    type: model.types.type,
+  // 2. ggenerate datatypes in the models
+  modelNames.forEach(dataTypeGenerator(getModel, typeMapper, filterMapper))
+
+  // 3. generator queries, mutations & subscriptions
+  return {
+    queryFields: modelNames.reduce(queryFieldReducer(getModel, configuration), {}),
+    mutationFields: modelNames.reduce(mutationFieldReducer(getModel, configuration), {}),
   }
-
-  queryFields[names.fields.findMany] = {
-    args: {
-      [names.arguments.where]: { type: model.argsFields.where },
-      [names.arguments.order]: { type: model.argsFields.order },
-    },
-    resolve: (_, { where, order }, context, info) =>
-      model.resolvers.findMany(
-        _,
-        {
-          where: filterParser('where', where),
-          order: orderMapper(order),
-        },
-        context,
-        info,
-      ),
-    type: new GraphQLNonNull(model.types.list),
-  }
-
-  return queryFields
-}
-
-const mutationFieldReducer = <Types, Models>(
-  getModel: ModelFetcher<Types, Models>,
-  configuration: GeneratorConfiguration<Types, Models>,
-) => (mutationFields, name) => {
-  const model = getModel(name)
-  const names = configuration.namingStrategy(name)
-
-  const filterParser = applyFilterParser(configuration.filterParser)(model)
-
-  mutationFields[names.fields.create] = {
-    args: { [names.arguments.data]: { type: model.argsFields.create } },
-    resolve: (_, { data }, context, info) =>
-      model.resolvers.create(
-        _,
-        {
-          data: filterParser('create', data),
-        },
-        context,
-        info,
-      ),
-    type: model.types.type,
-  }
-
-  mutationFields[names.fields.update] = {
-    args: {
-      [names.arguments.data]: { type: model.argsFields.data },
-      [names.arguments.where]: { type: model.argsFields.where },
-    },
-    resolve: (_, { data, where }, context, info) =>
-      model.resolvers.update(
-        _,
-        {
-          data: filterParser('update', data),
-          where: filterParser('where', where),
-        },
-        context,
-        info,
-      ),
-    type: model.types.type,
-  }
-
-  mutationFields[names.fields.delete] = {
-    args: {
-      [names.arguments.where]: { type: model.argsFields.where },
-      [names.arguments.order]: { type: model.argsFields.order },
-    },
-    resolve: (_, { where, order }, context, info) =>
-      model.resolvers.delete(
-        _,
-        {
-          where: filterParser('where', where),
-          order: filterParser('create', order),
-        },
-        context,
-        info,
-      ),
-    type: new GraphQLNonNull(model.types.list),
-  }
-
-  return mutationFields
 }
 
 export const createBaseSchemaGenerator = <Types, Models>(
-  partialConfiguration: PartialGeneratorConfiguration<Types, Models>,
-): BaseSchemaGenerator<Types, Models> => {
-  const configuration: GeneratorConfiguration<Types, Models> = {
-    filterMapper: defaultFilterMapper,
-    filterParser: createDefaultFilterParser<Types, Models>(),
-    namingStrategy: defaultNamingStrategy,
-    orderMapper: defaultOrderMapper,
-    ...partialConfiguration,
-  }
-  // this is independet of the models and can be defined outside
-  const filterMapper = applyFilterMapper(configuration.filterMapper)
-
-  return models => {
-    const modelNames: Array<keyof Models> = Object.keys(models) as any
-    // 1. initialize all models
-    const record: Record<keyof Models, ExtendedModel<Types, Models>> = modelNames.reduce(
-      extendModelReducer(configuration, models),
-      {},
-    ) as any
-
-    const getModel = (modelName: keyof Models): ExtendedModel<Types, Models> => record[modelName]
-    const typeMapper = applyTypeMapper(configuration.typeMapper, getModel)
-
-    // 2. ggenerate datatypes in the models
-    modelNames.forEach(dataTypeGenerator(getModel, typeMapper, filterMapper))
-
-    // 3. generator queries, mutations & subscriptions
-    const queryFields = modelNames.reduce(queryFieldReducer(getModel, configuration), {})
-
-    const mutationFields = modelNames.reduce(mutationFieldReducer(getModel, configuration), {})
-
-    return {
-      queryFields,
-      mutationFields,
-    }
-  }
-}
+  configuration: PartialGeneratorConfiguration<Types, Models>,
+): BaseSchemaGenerator<Types, Models> => baseSchemaGenerator(applyDefaultConfiguration(configuration))
