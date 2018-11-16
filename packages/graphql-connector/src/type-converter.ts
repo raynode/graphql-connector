@@ -9,7 +9,7 @@ export type TypeMapper<Types, Models> = <Inst>(
 export const applyTypeMapper = <Types, Models>(
   typeMapper: TypeMapper<Types, Models>,
   getModel: (name: keyof Models) => ExtendedModel<Types, Models>,
-) => <Model, Inst>(field: BaseField<Types, Models, Inst>, model: AnyModel<Types, Models>): GraphQLType => {
+) => <Model, Inst>(field: BaseField<Types, Models, Inst>, model: ExtendedModel<Types, Models>): GraphQLType => {
   if (isAssociationField(field)) {
     const model = getModel(field.model)
     if (!model) return null
