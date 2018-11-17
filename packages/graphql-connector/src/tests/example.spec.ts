@@ -172,10 +172,13 @@ describe('the example code', async () => {
       // create the base resolvers
       // only implemented the findOne, findMany and create resolver as I am lazy
       return {
-        findMany: async (_, { where }) => ({
-          nodes: await model.findMany(buildFilterFn(where)),
-          page: null,
-        }),
+        findMany: async (_, { where, order }) => {
+          console.log(where, order)
+          return {
+            nodes: await model.findMany(buildFilterFn(where)),
+            page: null,
+          }
+        },
         create: async (_, { data }) => (model.create as any)(data),
         findOne: async (_, { where }) => model.findOne(buildFilterFn(where)),
         delete: async () => null,
@@ -339,14 +342,27 @@ describe('the example code', async () => {
       expect(data).toMatchSnapshot()
     })
 
-    it('should find all members', async () => {
+    it('should find all members in name order ', async () => {
       const { data } = await runQuery(`{
         members: Users(where: {
           group: "member"
-        }) { nodes {
+        }, order: name_ASC) { nodes {
           name
         }}
       }`)
+      console.log(data.members.nodes)
+      expect(data).toMatchSnapshot()
+    })
+
+    it('should find all members in reversed name order ', async () => {
+      const { data } = await runQuery(`{
+        members: Users(where: {
+          group: "member"
+        }, order: name_DESC) { nodes {
+          name
+        }}
+      }`)
+      console.log(data.members.nodes)
       expect(data).toMatchSnapshot()
     })
 
@@ -358,6 +374,7 @@ describe('the example code', async () => {
           name
         }}
       }`)
+      console.log(data)
       expect(data).toMatchSnapshot()
     })
   } catch (err) {

@@ -13,13 +13,15 @@ export const Database = {
     Database.database = []
   },
   findById: <Attrs, M extends Model<DBTypeRecord>>(id: string) =>
-    Database.findOne(instance => instance.get('id') === id),
+    Database.findOne(instance => instance.get('id') === id, () => 1),
   findOne: <Attrs, M extends Model<DBTypeRecord>>(
     filterFn: (instance: Instance<Attrs, M>) => boolean,
-  ): Instance<Attrs, M> => Database.database.find(filterFn),
+    orderFn: (a: Instance<any, any>, b: Instance<any, any>) => number,
+  ): Instance<Attrs, M> => Database.database.sort(orderFn).find(filterFn),
   findAll: <Attrs, M extends Model<DBTypeRecord>>(
     filterFn: (instance: Instance<Attrs, M>) => boolean,
-  ): Array<Instance<Attrs, M>> => Database.database.filter(filterFn),
+    orderFn: (a: Instance<any, any>, b: Instance<any, any>) => number,
+  ): Array<Instance<Attrs, M>> => Database.database.sort(orderFn).filter(filterFn),
   push: <Attrs, M extends Model<DBTypeRecord>>(instance: Instance<Attrs, M>) => {
     Database.database.push(instance)
     return instance
@@ -113,17 +115,31 @@ export class Model<Attrs extends DBTypeRecord> {
     return Database.push(instance)
   }
   // : (instance: Instance<Attrs, this>) => boolean
-  public findMany(filterFn: (instance: Instance<Attrs, Model<any>>) => boolean) {
-    return Database.findAll(instance => instance.model.name === this.name && filterFn(instance))
+  public findMany(filterFn: (instance: Instance<Attrs, Model<any>>) => boolean, orderField = null, order = null) {
+    return Database.findAll(
+      instance => instance.model.name === this.name && filterFn(instance),
+      this.toOrderFn(orderField, order),
+    )
   }
 
-  public findOne(filterFn: (instance: Instance<Attrs, Model<any>>) => boolean) {
-    return Database.findOne(instance => instance.model.name === this.name && filterFn(instance))
+  public findOne(filterFn: (instance: Instance<Attrs, Model<any>>) => boolean, orderField = null, order = null) {
+    return Database.findOne(
+      instance => instance.model.name === this.name && filterFn(instance),
+      this.toOrderFn(orderField, order),
+    )
   }
 
   // add an inspect method to your instances or models to make it nicer to debug the data inside
   public inspect() {
     return `${this.name} (${Object.keys(this.attributes)})`
+  }
+
+  private toOrderFn(orderField: string = null, order: 'ASC' | 'DESC' = 'ASC') {
+    return orderField
+      ? (a, b) => {
+          return (order === 'ASC' ? 1 : -1) * (a[orderField] > b[orderField] ? 1 : -1)
+        }
+      : () => 1
   }
 }
 

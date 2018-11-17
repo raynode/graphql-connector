@@ -11,7 +11,6 @@ import { ListType, NodeType, PageInputType, PageType } from './generic-types'
 import { AnyModel, Attribute, ExtendedModel, GenericField, Model } from './model'
 import { GeneratedModelMapper } from './model-mapper'
 import { defaultNamingStrategy, Names, NamingStrategy } from './naming-strategy'
-import { applyOrderMapper, defaultOrderMapper, OrderMapper } from './order-mapper'
 import { applyTypeMapper, TypeMapper } from './type-converter'
 import { RecordOf } from './utils'
 
@@ -148,7 +147,6 @@ const dataTypeGenerator = <Types, Models>(
 const baseSchemaGenerator = <Types, Models>(configuration: GeneratorConfiguration<Types, Models>) => (
   models: Models,
 ) => {
-  const filterMapper = applyFilterMapper(configuration.filterMapper)
   const modelNames = Object.keys(models) as Array<keyof Models>
   // 1. initialize all models
   const record: Record<keyof Models, ExtendedModel<Types, Models>> = modelNames.reduce(
@@ -157,6 +155,7 @@ const baseSchemaGenerator = <Types, Models>(configuration: GeneratorConfiguratio
   )
 
   const getModel = (modelName: keyof Models): ExtendedModel<Types, Models> => record[modelName]
+  const filterMapper = applyFilterMapper(configuration.filterMapper)
   const typeMapper = applyTypeMapper(configuration.typeMapper, getModel)
 
   // 2. ggenerate datatypes in the models

@@ -2,6 +2,7 @@ import { GraphQLNonNull } from 'graphql'
 import { GeneratorConfiguration } from './configuration'
 import { applyFilterParser } from './filter-field-generator'
 import { ExtendedModel } from './model'
+import { applyOrderMapper } from './order-mapper'
 
 export type ModelFetcher<Types, Models> = (modelName: keyof Models) => ExtendedModel<Types, Models>
 
@@ -13,7 +14,7 @@ export const queryFieldReducer = <Types, Models>(
   const names = configuration.namingStrategy(name)
 
   const filterParser = applyFilterParser(configuration.filterParser)(model)
-  const orderMapper = applyFilterParser(configuration.orderMapper)
+  const orderMapper = applyOrderMapper(configuration.orderMapper)
 
   queryFields[names.fields.findOne] = {
     args: {

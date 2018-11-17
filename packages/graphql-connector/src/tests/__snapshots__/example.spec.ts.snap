@@ -162,7 +162,22 @@ Object {
 }
 `;
 
-exports[`the example code should find all members 1`] = `
+exports[`the example code should find all members in name order  1`] = `
+Object {
+  "members": Object {
+    "nodes": Array [
+      Object {
+        "name": "Frank",
+      },
+      Object {
+        "name": "Georg",
+      },
+    ],
+  },
+}
+`;
+
+exports[`the example code should find all members in reversed name order  1`] = `
 Object {
   "members": Object {
     "nodes": Array [
@@ -183,17 +198,6 @@ Object {
     "nodes": Array [
       Object {
         "author": Object {
-          "name": "Paul",
-        },
-        "comments": Object {
-          "nodes": Array [],
-        },
-        "text": "This is a good time to be alive, this is our new Blog. Clean code to the max!",
-        "title": "Welcome to the new Blog!",
-        "upvotes": 17,
-      },
-      Object {
-        "author": Object {
           "name": "Georg",
         },
         "comments": Object {
@@ -210,6 +214,17 @@ Object {
         "title": "Was alien technology involved?",
         "upvotes": 4,
       },
+      Object {
+        "author": Object {
+          "name": "Paul",
+        },
+        "comments": Object {
+          "nodes": Array [],
+        },
+        "text": "This is a good time to be alive, this is our new Blog. Clean code to the max!",
+        "title": "Welcome to the new Blog!",
+        "upvotes": 17,
+      },
     ],
   },
 }
@@ -219,9 +234,6 @@ exports[`the example code should find all users with posts 1`] = `
 Object {
   "authors": Object {
     "nodes": Array [
-      Object {
-        "name": "Georg",
-      },
       Object {
         "name": "Paul",
       },
@@ -234,6 +246,27 @@ exports[`the example code should find more data 1`] = `
 Object {
   "Users": Object {
     "nodes": Array [
+      Object {
+        "comments": Object {
+          "nodes": Array [],
+        },
+        "email": "paul@example.com",
+        "name": "Paul",
+        "posts": Object {
+          "nodes": Array [
+            Object {
+              "comments": Object {
+                "nodes": Array [],
+              },
+              "title": "Welcome to the new Blog!",
+              "upvotes": 17,
+            },
+          ],
+        },
+        "questions": Object {
+          "nodes": Array [],
+        },
+      },
       Object {
         "comments": Object {
           "nodes": Array [
@@ -281,27 +314,6 @@ Object {
           ],
         },
       },
-      Object {
-        "comments": Object {
-          "nodes": Array [],
-        },
-        "email": "paul@example.com",
-        "name": "Paul",
-        "posts": Object {
-          "nodes": Array [
-            Object {
-              "comments": Object {
-                "nodes": Array [],
-              },
-              "title": "Welcome to the new Blog!",
-              "upvotes": 17,
-            },
-          ],
-        },
-        "questions": Object {
-          "nodes": Array [],
-        },
-      },
     ],
   },
 }
@@ -310,6 +322,22 @@ Object {
 exports[`the example code should find the user by name 1`] = `
 Object {
   "nodes": Array [
+    Object {
+      "email": "paul@example.com",
+      "name": "Paul",
+      "posts": Object {
+        "nodes": Array [
+          Object {
+            "comments": Object {
+              "nodes": Array [],
+            },
+            "text": "This is a good time to be alive, this is our new Blog. Clean code to the max!",
+            "title": "Welcome to the new Blog!",
+            "upvotes": 17,
+          },
+        ],
+      },
+    },
     Object {
       "email": "georg@example.com",
       "name": "Georg",
@@ -329,22 +357,6 @@ Object {
             "text": "I think that is a fair question, GraphQL sometimes feels very alien to people.",
             "title": "Was alien technology involved?",
             "upvotes": 4,
-          },
-        ],
-      },
-    },
-    Object {
-      "email": "paul@example.com",
-      "name": "Paul",
-      "posts": Object {
-        "nodes": Array [
-          Object {
-            "comments": Object {
-              "nodes": Array [],
-            },
-            "text": "This is a good time to be alive, this is our new Blog. Clean code to the max!",
-            "title": "Welcome to the new Blog!",
-            "upvotes": 17,
           },
         ],
       },
