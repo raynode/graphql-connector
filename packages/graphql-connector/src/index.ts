@@ -5,3 +5,6 @@ export * from './filter-field-generator'
 export * from './model'
 export * from './model-mapper'
 export * from './utils'
+export * from './configuration'
+export * from './order-mapper'
+

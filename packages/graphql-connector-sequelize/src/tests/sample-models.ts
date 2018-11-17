@@ -72,7 +72,7 @@ export const initialize = async () => {
     ) VALUES
    ('${uuidv4(1)}'  ,'admin'  ,'Admin'      ,'Admin'     ,'admin@example.com'    ,'2018-11-09 16:00:00.000 +00:00','2018-11-09 16:00:00.000 +00:00'),
    ('${uuidv4(2)}'  ,'member' ,'Mr.G!'      ,'Georg'     ,'georg@example.com'    ,'2018-11-09 16:30:00.000 +00:00','2018-11-09 16:30:00.000 +00:00'),
-   ('${uuidv4(3)}'  ,'geust'  ,'Paulchen'   ,'Paul'      ,'paul@example.com'     ,'2018-11-09 16:40:00.000 +00:00','2018-11-09 16:40:00.000 +00:00'),
+   ('${uuidv4(3)}'  ,'guest'  ,'Paulchen'   ,'Paul'      ,'paul@example.com'     ,'2018-11-09 16:40:00.000 +00:00','2018-11-09 16:40:00.000 +00:00'),
    ('${uuidv4(4)}'  ,'member' ,'Effy'       ,'Frank'     ,'frank@example.com'    ,'2018-11-09 16:50:00.000 +00:00','2018-11-09 16:50:00.000 +00:00')
     ;
   `)

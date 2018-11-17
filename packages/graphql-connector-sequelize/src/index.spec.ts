@@ -50,7 +50,7 @@ describe('schema', () => {
   })
 
   it('should correctly load the data', async () => {
-    const { data } = await runQuery(`{
+    const { data, errors } = await runQuery(`{
       Users { nodes {
         id
         state
@@ -61,6 +61,7 @@ describe('schema', () => {
         updatedAt
       } }
     }`)
+    console.log(data, errors)
     expect(data.Users.nodes).toMatchSnapshot()
   })
 
@@ -115,14 +116,16 @@ describe('schema', () => {
     const { data } = await runQuery(`{
       Users(order: id_ASC) { nodes { id name } }
     }`)
+    console.log(data.Users.nodes)
     expect(data.Users.nodes[0].id).toEqual(uuidv4(1))
     expect(data).toMatchSnapshot()
   })
 
-  it.skip('should find the users in descending order of id', async () => {
+  it('should find the users in descending order of id', async () => {
     const { data } = await runQuery(`{
       Users(order: id_DESC) { nodes { id name } }
     }`)
+    console.log(data.Users.nodes)
     expect(data.Users.nodes[0].id).toEqual(uuidv4(4))
     expect(data).toMatchSnapshot()
   })

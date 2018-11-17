@@ -78,12 +78,12 @@ export const modelMapper = createModelMapper<DataTypes, Models>((model, addAttri
   return {
     create: async (_, { data }) => model.create(data),
     delete: async () => null,
-    findMany: async (_, { where, page = {
+    findMany: async (_, { order, where, page = {
       limit: 100,
       offset: 0,
     }}) => {
-      console.log('FIND MANY', where, page)
-      const { count, rows: nodes } = await model.findAndCount()
+      console.log('FIND MANY', where, page, order)
+      const { count, rows: nodes } = await model.findAndCountAll({ where, order })
       return {
         nodes,
         page,
