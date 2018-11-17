@@ -126,7 +126,11 @@ const dataTypeGenerator = <Types, Models>(
         ...filter,
         ...(fieldType === 'Association' ? null : filterMapper(name, type, false)),
       }),
-      {},
+      {
+        AND: { type: GraphQLList(GraphQLNonNull(model.argsFields.filter)) },
+        OR: { type: GraphQLList(GraphQLNonNull(model.argsFields.filter)) },
+        NOT: { type: model.argsFields.filter },
+      },
     ),
     data: fields.reduce((data, { name, type, fieldType }) => {
       data[name] = fieldType === 'Attribute' ? { type } : { type: model.argsFields.where }

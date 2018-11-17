@@ -376,6 +376,9 @@ exports[`the example code should have the correct schema 1`] = `
 }
 
 input CommentFilter {
+  AND: [CommentFilter!]
+  OR: [CommentFilter!]
+  NOT: CommentFilter
   id: ID
   id_not: ID
   id_in: [ID!]
@@ -511,6 +514,9 @@ type Post implements Node {
 }
 
 input PostFilter {
+  AND: [PostFilter!]
+  OR: [PostFilter!]
+  NOT: PostFilter
   id: ID
   id_not: ID
   id_in: [ID!]
@@ -599,6 +605,9 @@ type Question implements Node {
 }
 
 input QuestionFilter {
+  AND: [QuestionFilter!]
+  OR: [QuestionFilter!]
+  NOT: QuestionFilter
   id: ID
   id_not: ID
   id_in: [ID!]
@@ -706,6 +715,9 @@ type User implements Node {
 }
 
 input UserFilter {
+  AND: [UserFilter!]
+  OR: [UserFilter!]
+  NOT: UserFilter
   id: ID
   id_not: ID
   id_in: [ID!]
