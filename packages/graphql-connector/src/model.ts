@@ -1,6 +1,6 @@
-import { Page } from 'generic-types'
 import { GraphQLInputObjectType, GraphQLObjectType, GraphQLType, GraphQLTypeResolver } from 'graphql'
 import { ArgsFields } from './args-filter-generator'
+import { Page } from './generic-types'
 import { Names } from './naming-strategy'
 import { applyToRecordOf, RecordOf } from './utils'
 

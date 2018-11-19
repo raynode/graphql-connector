@@ -29,7 +29,7 @@
     ]
   },
   "keywords": [],
-  "author": "",
+  "author": "Tobias Kopelke <nox@raynode.de>",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/raynode/graphql-connector/issues"

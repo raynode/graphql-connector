@@ -1,4 +1,4 @@
-import { AnyModel, createModelMapper, GeneratedModelMapper } from '@raynode/graphql-connector'
+import { AnyModel, createModelMapper, GeneratedModelMapper, Page } from '@raynode/graphql-connector'
 import * as Sequelize from 'sequelize'
 import { DataTypes } from './type-guards'
 
@@ -45,7 +45,9 @@ export interface Models {
   [x: string]: Sequelize.Model<any, any>
 }
 
-let d = false
+const createPage = (offset: number, limit: number, page: number): Page => ({
+  offset, limit, page,
+})
 
 export const modelMapper = createModelMapper<DataTypes, Models>((model, addAttribute, addAssociation) => {
   const rawModel: SequelizeModel = model as any
@@ -77,7 +79,7 @@ export const modelMapper = createModelMapper<DataTypes, Models>((model, addAttri
         return list
         ? {
           nodes: res,
-          page: null,
+          page: createPage(0, 100, 0),
         } : res
       },
     })
@@ -90,7 +92,7 @@ export const modelMapper = createModelMapper<DataTypes, Models>((model, addAttri
       const nodes = await model.findAll({ include, where, order })
       return {
         nodes,
-        page: { limit: 100, offset: 0 },
+        page: createPage(0, 100, 0),
       }
     },
     findOne: async () => null,

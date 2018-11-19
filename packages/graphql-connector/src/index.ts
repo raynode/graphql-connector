@@ -7,4 +7,4 @@ export * from './model-mapper'
 export * from './utils'
 export * from './configuration'
 export * from './order-mapper'
-
+export * from './generic-types'
