@@ -1,4 +1,4 @@
-import { GraphQLNonNull } from 'graphql'
+import { GraphQLNonNull, GraphQLList } from 'graphql'
 import { GeneratorConfiguration } from './configuration'
 import { applyFilterParser } from './filter-field-generator'
 import { ExtendedModel } from './model'
@@ -93,7 +93,7 @@ export const mutationFieldReducer = <Types, Models>(
         context,
         info,
       ),
-    type: new GraphQLNonNull(model.types.list),
+    type: GraphQLNonNull(GraphQLList(GraphQLNonNull(model.types.type))),
   }
 
   mutationFields[names.fields.delete] = {
@@ -110,7 +110,7 @@ export const mutationFieldReducer = <Types, Models>(
         context,
         info,
       ),
-    type: new GraphQLNonNull(model.types.list),
+    type: GraphQLNonNull(GraphQLList(GraphQLNonNull(model.types.type))),
   }
 
   return mutationFields

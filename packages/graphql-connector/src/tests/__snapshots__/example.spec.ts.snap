@@ -410,6 +410,9 @@ enum CommentSortOrder {
 }
 
 input CommentWhere {
+  AND: [CommentFilter!]
+  OR: [CommentFilter!]
+  NOT: CommentFilter
   id: ID
   id_not: ID
   id_in: [ID!]
@@ -479,17 +482,17 @@ interface List {
 
 type Mutation {
   createUser(data: CreateUserData): User
-  updateUser(data: UpdateUserData, where: UserWhere): User
-  deleteUsers(where: UserWhere, order: UserSortOrder): Users!
+  updateUser(data: UpdateUserData, where: UserWhere): [User!]!
+  deleteUsers(where: UserWhere, order: UserSortOrder): [User!]!
   createPost(data: CreatePostData): Post
-  updatePost(data: UpdatePostData, where: PostWhere): Post
-  deletePosts(where: PostWhere, order: PostSortOrder): Posts!
+  updatePost(data: UpdatePostData, where: PostWhere): [Post!]!
+  deletePosts(where: PostWhere, order: PostSortOrder): [Post!]!
   createComment(data: CreateCommentData): Comment
-  updateComment(data: UpdateCommentData, where: CommentWhere): Comment
-  deleteComments(where: CommentWhere, order: CommentSortOrder): Comments!
+  updateComment(data: UpdateCommentData, where: CommentWhere): [Comment!]!
+  deleteComments(where: CommentWhere, order: CommentSortOrder): [Comment!]!
   createQuestion(data: CreateQuestionData): Question
-  updateQuestion(data: UpdateQuestionData, where: QuestionWhere): Question
-  deleteQuestions(where: QuestionWhere, order: QuestionSortOrder): Questions!
+  updateQuestion(data: UpdateQuestionData, where: QuestionWhere): [Question!]!
+  deleteQuestions(where: QuestionWhere, order: QuestionSortOrder): [Question!]!
 }
 
 interface Node {
@@ -562,6 +565,9 @@ enum PostSortOrder {
 }
 
 input PostWhere {
+  AND: [PostFilter!]
+  OR: [PostFilter!]
+  NOT: PostFilter
   id: ID
   id_not: ID
   id_in: [ID!]
@@ -643,6 +649,9 @@ enum QuestionSortOrder {
 }
 
 input QuestionWhere {
+  AND: [QuestionFilter!]
+  OR: [QuestionFilter!]
+  NOT: QuestionFilter
   id: ID
   id_not: ID
   id_in: [ID!]
@@ -775,6 +784,9 @@ enum UserSortOrder {
 }
 
 input UserWhere {
+  AND: [UserFilter!]
+  OR: [UserFilter!]
+  NOT: UserFilter
   id: ID
   id_not: ID
   id_in: [ID!]

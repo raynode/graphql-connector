@@ -284,13 +284,13 @@ input LoopWhere {
 
 type Mutation {
   createUser(data: CreateUserData): User
-  updateUser(data: UpdateUserData, where: UserWhere): Users!
+  updateUser(data: UpdateUserData, where: UserWhere): [User!]!
   deleteUsers(where: UserWhere, order: UserSortOrder): [User!]!
   createLoop(data: CreateLoopData): Loop
-  updateLoop(data: UpdateLoopData, where: LoopWhere): Loops!
+  updateLoop(data: UpdateLoopData, where: LoopWhere): [Loop!]!
   deleteLoops(where: LoopWhere, order: LoopSortOrder): [Loop!]!
   createPost(data: CreatePostData): Post
-  updatePost(data: UpdatePostData, where: PostWhere): Posts!
+  updatePost(data: UpdatePostData, where: PostWhere): [Post!]!
   deletePosts(where: PostWhere, order: PostSortOrder): [Post!]!
 }
 
@@ -539,13 +539,11 @@ Array [
 
 exports[`schema should update a post 1`] = `
 Object {
-  "updatePost": Object {
-    "nodes": Array [
-      Object {
-        "id": "660660660660660660660660-660660660660-4660660660-8660660660-660660660660660660660660660660660660",
-        "title": "This is my new Post",
-      },
-    ],
-  },
+  "updatePost": Array [
+    Object {
+      "id": "660660660660660660660660-660660660660-4660660660-8660660660-660660660660660660660660660660660660",
+      "title": "This is my new Post",
+    },
+  ],
 }
 `;

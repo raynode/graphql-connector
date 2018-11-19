@@ -75,7 +75,6 @@ class Filter<Key extends keyof Models> {
         case 'eq':
           return (instance.get(this.field) === value) !== not
       }
-      console.log(func, value)
       // throw new Error(func + ' not defined')
       return valid
     }, true)
@@ -173,7 +172,6 @@ describe('the example code', async () => {
       // only implemented the findOne, findMany and create resolver as I am lazy
       return {
         findMany: async (_, { where, order }) => {
-          console.log(where, order)
           return {
             nodes: await model.findMany(buildFilterFn(where)),
             page: null,
@@ -350,7 +348,6 @@ describe('the example code', async () => {
           name
         }}
       }`)
-      console.log(data.members.nodes)
       expect(data).toMatchSnapshot()
     })
 
@@ -362,7 +359,6 @@ describe('the example code', async () => {
           name
         }}
       }`)
-      console.log(data.members.nodes)
       expect(data).toMatchSnapshot()
     })
 
@@ -374,7 +370,6 @@ describe('the example code', async () => {
           name
         }}
       }`)
-      console.log(data)
       expect(data).toMatchSnapshot()
     })
   } catch (err) {

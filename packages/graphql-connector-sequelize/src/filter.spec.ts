@@ -80,10 +80,6 @@ describe('filter', () => {
       expectFilterParser({ NOT: {
         Model_some: { id: 1 },
       }})
-
-      console.log('shift')
-      console.log('shift')
-      console.log('shift')
     })
   })
 })

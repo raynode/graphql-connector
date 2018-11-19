@@ -98,15 +98,15 @@ export const modelMapper = createModelMapper<DataTypes, Models>((model, addAttri
   const resolvers = {
     create: async (_, { data }) => model.create(data),
     delete: async (_, { where: { where } }) => {
-      const items = await model.findAll({ where })
-      const rows = await model.destroy({ where })
-      return items
+      const deletedItems = await model.findAll({ where })
+      await model.destroy({ where })
+      return deletedItems
     },
     findMany: async (_, { order, where: { where = {}, include = [] } = {} }) => findAll(include, where, order),
     findOne: async (_, { order, where: { where = {}, include = [] } = {} }) => model.findOne({ include, where, order }),
     update: async (_, { data, where: { where, include } }) => {
       await model.update(data, { where })
-      return findAll(include, where)
+      return model.findAll({ where })
     },
   }
   return resolvers

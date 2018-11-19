@@ -181,10 +181,10 @@ describe('schema', () => {
         title: "This is my new Post"
       }, where: {
         id: "${uuidv4(102)}"
-      }) { nodes {
+      }) {
         id
         title
-      } }
+      }
     }`)
     expect(data).toMatchSnapshot()
   })
