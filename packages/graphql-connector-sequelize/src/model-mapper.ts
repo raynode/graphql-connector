@@ -45,11 +45,13 @@ export interface Models {
   [x: string]: Sequelize.Model<any, any>
 }
 
+let d = false
+
 export const modelMapper = createModelMapper<DataTypes, Models>((model, addAttribute, addAssociation) => {
   const rawModel: SequelizeModel = model as any
   Object.keys(rawModel.rawAttributes).forEach(name => {
     const attribute = rawModel.rawAttributes[name]
-    // console.log(JSON.stringify(attribute, null, 2))
+    // if(d) console.log(JSON.stringify(attribute, null, 2))
     addAttribute({
       name,
       type: attribute.type,
@@ -61,16 +63,22 @@ export const modelMapper = createModelMapper<DataTypes, Models>((model, addAttri
 
   Object.keys(rawModel.associations).forEach(name => {
     const association = rawModel.associations[name]
+    const list = association.associationType === 'HasMany' || association.associationType === 'BelongsToMany'
     addAssociation({
       name: association.as,
       model: association.target.name,
-      list: association.associationType === 'HasMany' || association.associationType === 'BelongsToMany',
+      list,
       nonNull: association.associationType === 'BelongsTo' || association.associationType === 'BelongsToMany',
       resolver: async (instance, args, context, info) => {
-        // console.log(info.fieldName, info.fieldNodes)
-        // console.log(rawModel, association)
-        // console.log(`get${association.as}`, instance[`get${association.as}`])
-        return instance[`get${association.as}`]()
+        // @TODO
+        // this needs to correctly submit nodes and page when done!
+        const res = await instance[`get${association.as}`]()
+
+        return list
+        ? {
+          nodes: res,
+          page: null,
+        } : res
       },
     })
   })
@@ -78,15 +86,11 @@ export const modelMapper = createModelMapper<DataTypes, Models>((model, addAttri
   return {
     create: async (_, { data }) => model.create(data),
     delete: async () => null,
-    findMany: async (_, { order, where, page = {
-      limit: 100,
-      offset: 0,
-    }}) => {
-      console.log('FIND MANY', where, page, order)
-      const { count, rows: nodes } = await model.findAndCountAll({ where, order })
+    findMany: async (_, { order, where: { where = {}, include = [] } = {} }) => {
+      const nodes = await model.findAll({ include, where, order })
       return {
         nodes,
-        page,
+        page: { limit: 100, offset: 0 },
       }
     },
     findOne: async () => null,

@@ -12,6 +12,7 @@ import {
   GraphQLInt,
   isListType,
   isScalarType,
+  isEnumType,
 } from 'graphql'
 
 export const filterMapper: FilterMapper = (name, type, list, isFilter) => {
@@ -34,6 +35,10 @@ export const filterMapper: FilterMapper = (name, type, list, isFilter) => {
         [`${name}_gt`]: { type },
         [`${name}_lt`]: { type },
       }
+  }
+  if(isEnumType(type)) return {
+    [`${name}`]: { type },
+    [`${name}_in`]: { type: list },
   }
   if (isListType(type))
     return {

@@ -68,6 +68,56 @@ Object {
 }
 `;
 
+exports[`schema should find all users that have written a post 1`] = `
+Object {
+  "Users": Object {
+    "nodes": Array [
+      Object {
+        "Posts": Object {
+          "nodes": Array [
+            Object {
+              "title": "This is a Post by the Admin",
+            },
+          ],
+        },
+        "name": "Admin",
+      },
+      Object {
+        "Posts": Object {
+          "nodes": Array [
+            Object {
+              "title": "This is by Paulchen",
+            },
+          ],
+        },
+        "name": "Paul",
+      },
+    ],
+  },
+}
+`;
+
+exports[`schema should find everybody except the admin 1`] = `
+Object {
+  "Users": Object {
+    "nodes": Array [
+      Object {
+        "name": "Georg",
+        "state": "member",
+      },
+      Object {
+        "name": "Paul",
+        "state": "guest",
+      },
+      Object {
+        "name": "Frank",
+        "state": "member",
+      },
+    ],
+  },
+}
+`;
+
 exports[`schema should find only Georg 1`] = `null`;
 
 exports[`schema should find the users in ascending order of id 1`] = `
@@ -168,6 +218,9 @@ type Loop implements Node {
 }
 
 input LoopFilter {
+  AND: [LoopFilter!]
+  OR: [LoopFilter!]
+  NOT: LoopFilter
   id: ID
   id_in: [ID!]
   nextId: ID
@@ -193,6 +246,9 @@ enum LoopSortOrder {
 }
 
 input LoopWhere {
+  AND: [LoopFilter!]
+  OR: [LoopFilter!]
+  NOT: LoopFilter
   id: ID
   id_in: [ID!]
   nextId: ID
@@ -233,6 +289,9 @@ type Post implements Node {
 }
 
 input PostFilter {
+  AND: [PostFilter!]
+  OR: [PostFilter!]
+  NOT: PostFilter
   id: ID
   id_in: [ID!]
   title: String
@@ -265,6 +324,9 @@ enum PostSortOrder {
 }
 
 input PostWhere {
+  AND: [PostFilter!]
+  OR: [PostFilter!]
+  NOT: PostFilter
   id: ID
   id_in: [ID!]
   title: String
@@ -327,8 +389,13 @@ type User implements Node {
 }
 
 input UserFilter {
+  AND: [UserFilter!]
+  OR: [UserFilter!]
+  NOT: UserFilter
   id: ID
   id_in: [ID!]
+  state: UserStateEnumType
+  state_in: [UserStateEnumType!]
   nickname: String
   nickname_in: [String!]
   nickname_like: [String!]
@@ -377,8 +444,13 @@ enum UserStateEnumType {
 }
 
 input UserWhere {
+  AND: [UserFilter!]
+  OR: [UserFilter!]
+  NOT: UserFilter
   id: ID
   id_in: [ID!]
+  state: UserStateEnumType
+  state_in: [UserStateEnumType!]
   nickname: String
   nickname_in: [String!]
   nickname_like: [String!]

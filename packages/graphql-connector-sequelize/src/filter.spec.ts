@@ -13,13 +13,19 @@ import { applyFilterParser } from '@raynode/graphql-connector'
 import { filterMapper } from './filter-mapper'
 import { filterParser } from './filter-parser'
 
-const parser = applyFilterParser(filterParser)({} as any)
+const parser = applyFilterParser(filterParser)({
+  source: {
+    associations: {
+      Model: {
+        as: 'm',
+        target: { name: 'Model' },
+      },
+    },
+  },
+} as any)
 const map = (name: string, type: GraphQLType) => filterMapper(name, type, GraphQLList(GraphQLNonNull(type)), false)
 const expectFilterMapper = (name: string, type: GraphQLType) => expect(map(name, type)).toMatchSnapshot(name)
-const expectFilterParser = (where: Record<string, any>) => {
-  const val = parser('where', where)
-  expect(val).toMatchSnapshot()
-}
+const expectFilterParser = (where: Record<string, any>) => expect(parser('where', where)).toMatchSnapshot()
 
 describe('filter', () => {
   describe('mapping', () => {
@@ -55,13 +61,25 @@ describe('filter', () => {
       // all boolean filters
       expectFilterParser({ boolean: true }) // matches 'bat'
 
-      expectFilterParser({ not: {
+      expectFilterParser({ AND: [{ int_gt: 1 },  { int_lt: 10 }]})
+      expectFilterParser({ OR: [{ int_gt: 1 },  { int_lt: 10 }]})
+
+      expectFilterParser({ NOT: {
         int_gt: 1,
         int_lt: 10,
       }})
 
-      expectFilterParser({ and: [{ int_gt: 1 },  { int_lt: 10 }]})
-      expectFilterParser({ or: [{ int_gt: 1 },  { int_lt: 10 }]})
+      expectFilterParser({
+        Model_some: { id: 1 },
+      })
+
+      expectFilterParser({
+        Model_some: { NOT: { id: 1 }},
+      })
+
+      expectFilterParser({ NOT: {
+        Model_some: { id: 1 },
+      }})
 
       console.log('shift')
       console.log('shift')

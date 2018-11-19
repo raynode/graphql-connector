@@ -112,6 +112,12 @@ const dataTypeGenerator = <Types, Models>(
 
   const fields = model.fields.reduce(genericFieldReducer(model, getModel, typeMapper), [] as GenericField[])
 
+  const baseFilters = {
+    AND: { type: GraphQLList(GraphQLNonNull(model.argsFields.filter)) },
+    OR: { type: GraphQLList(GraphQLNonNull(model.argsFields.filter)) },
+    NOT: { type: model.argsFields.filter },
+  }
+
   model.dataTypes = {
     type: fields.reduce((dataFields, { name, nonNull, resolver: resolve, type: fieldType }) => {
       dataFields[name] = { type: nonNull ? new GraphQLNonNull(fieldType) : fieldType, resolve }
@@ -126,11 +132,7 @@ const dataTypeGenerator = <Types, Models>(
         ...filter,
         ...(fieldType === 'Association' ? null : filterMapper(name, type, false)),
       }),
-      {
-        AND: { type: GraphQLList(GraphQLNonNull(model.argsFields.filter)) },
-        OR: { type: GraphQLList(GraphQLNonNull(model.argsFields.filter)) },
-        NOT: { type: model.argsFields.filter },
-      },
+      baseFilters,
     ),
     data: fields.reduce((data, { name, type, fieldType }) => {
       data[name] = fieldType === 'Attribute' ? { type } : { type: model.argsFields.where }
@@ -143,7 +145,7 @@ const dataTypeGenerator = <Types, Models>(
           ? filterMapper(name, model.argsFields.filter, true)
           : filterMapper(name, type, false)),
       }),
-      {},
+      baseFilters,
     ),
   }
 }

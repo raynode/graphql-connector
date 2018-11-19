@@ -50,7 +50,7 @@ describe('schema', () => {
   })
 
   it('should correctly load the data', async () => {
-    const { data, errors } = await runQuery(`{
+    const { data } = await runQuery(`{
       Users { nodes {
         id
         state
@@ -61,13 +61,11 @@ describe('schema', () => {
         updatedAt
       } }
     }`)
-    console.log(data, errors)
     expect(data.Users.nodes).toMatchSnapshot()
   })
 
   it('should create a new user', async () => {
-    console.log('Expecting to run the create resolver')
-    const { data, errors } = await runQuery(`
+    const { data } = await runQuery(`
       mutation {
         newUser: createUser(data: {
           name: "Jack"
@@ -116,7 +114,6 @@ describe('schema', () => {
     const { data } = await runQuery(`{
       Users(order: id_ASC) { nodes { id name } }
     }`)
-    console.log(data.Users.nodes)
     expect(data.Users.nodes[0].id).toEqual(uuidv4(1))
     expect(data).toMatchSnapshot()
   })
@@ -125,13 +122,12 @@ describe('schema', () => {
     const { data } = await runQuery(`{
       Users(order: id_DESC) { nodes { id name } }
     }`)
-    console.log(data.Users.nodes)
     expect(data.Users.nodes[0].id).toEqual(uuidv4(4))
     expect(data).toMatchSnapshot()
   })
 
   it('should find all posts and their authors', async () => {
-    const { data, errors } = await runQuery(`{
+    const { data } = await runQuery(`{
       Posts { nodes {
         title
         User {
@@ -142,10 +138,22 @@ describe('schema', () => {
     expect(data).toMatchSnapshot()
   })
 
+  it('should find everybody except the admin', async () => {
+    const { data } = await runQuery(`{
+      Users(where: { NOT: {
+        state: admin
+      }}) { nodes {
+        name
+        state
+      }}
+    }`)
+    expect(data).toMatchSnapshot()
+  })
+
   it('should find all users that have written a post', async () => {
-    const { data, errors } = await runQuery(`{
+    const { data } = await runQuery(`{
       Users(where: {
-        Posts_some: { not: { id: "" }}
+        Posts_some: { NOT: { id: "" }}
       }) { nodes {
         name
         Posts { nodes {
@@ -153,8 +161,6 @@ describe('schema', () => {
         }}
       }}
     }`)
-    console.log(errors)
-    // expect(data).toMatchSnapshot()
+    expect(data).toMatchSnapshot()
   })
-
 })
