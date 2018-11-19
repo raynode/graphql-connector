@@ -105,10 +105,10 @@ export const parser = (model: SequelizeModel, name: string, value: any, filter: 
 
 export const filterParser: FilterParser<DataTypes, Models> =
   (mode, model: SequelizeModel, name, value, data) => {
-    const filter: ParsedFilter = { where: data.where || {}, include: data.include || [] }
     // convert all where-filters into the correct sequelize groups
-    if(mode === 'where') return parser(model, name, value, filter)
+    if(mode === 'where') return parser(model, name, value, { where: data.where || {}, include: data.include || [] })
+    data[name] = value
     // @TODO create
     // @TODO update
-    return filter
+    return data
   }

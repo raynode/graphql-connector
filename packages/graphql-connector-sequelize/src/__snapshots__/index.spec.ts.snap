@@ -43,7 +43,12 @@ Array [
 
 exports[`schema should create a new user 1`] = `
 Object {
-  "newUser": null,
+  "newUser": Object {
+    "email": "jack@example.com",
+    "id": "650650650650650650650650-650650650650-4650650650-8650650650-650650650650650650650650650650650650",
+    "name": "Jack",
+    "nickname": "Jacky",
+  },
 }
 `;
 
@@ -113,12 +118,24 @@ Object {
         "name": "Frank",
         "state": "member",
       },
+      Object {
+        "name": "Jack",
+        "state": "guest",
+      },
     ],
   },
 }
 `;
 
-exports[`schema should find only Georg 1`] = `null`;
+exports[`schema should find only Georg 1`] = `
+Object {
+  "email": "jack@example.com",
+  "id": "650650650650650650650650-650650650650-4650650650-8650650650-650650650650650650650650650650650650",
+  "name": "Jack",
+  "nickname": "Jacky",
+  "state": "guest",
+}
+`;
 
 exports[`schema should find the users in ascending order of id 1`] = `
 Object {
@@ -140,6 +157,10 @@ Object {
         "id": "4040404040404040-40404040-4404040-8404040-404040404040404040404040",
         "name": "Frank",
       },
+      Object {
+        "id": "650650650650650650650650-650650650650-4650650650-8650650650-650650650650650650650650650650650650",
+        "name": "Jack",
+      },
     ],
   },
 }
@@ -149,6 +170,10 @@ exports[`schema should find the users in descending order of id 1`] = `
 Object {
   "Users": Object {
     "nodes": Array [
+      Object {
+        "id": "650650650650650650650650-650650650650-4650650650-8650650650-650650650650650650650650650650650650",
+        "name": "Jack",
+      },
       Object {
         "id": "4040404040404040-40404040-4404040-8404040-404040404040404040404040",
         "name": "Frank",
@@ -259,14 +284,14 @@ input LoopWhere {
 
 type Mutation {
   createUser(data: CreateUserData): User
-  updateUser(data: UpdateUserData, where: UserWhere): User
-  deleteUsers(where: UserWhere, order: UserSortOrder): Users!
+  updateUser(data: UpdateUserData, where: UserWhere): Users!
+  deleteUsers(where: UserWhere, order: UserSortOrder): [User!]!
   createLoop(data: CreateLoopData): Loop
-  updateLoop(data: UpdateLoopData, where: LoopWhere): Loop
-  deleteLoops(where: LoopWhere, order: LoopSortOrder): Loops!
+  updateLoop(data: UpdateLoopData, where: LoopWhere): Loops!
+  deleteLoops(where: LoopWhere, order: LoopSortOrder): [Loop!]!
   createPost(data: CreatePostData): Post
-  updatePost(data: UpdatePostData, where: PostWhere): Post
-  deletePosts(where: PostWhere, order: PostSortOrder): Posts!
+  updatePost(data: UpdatePostData, where: PostWhere): Posts!
+  deletePosts(where: PostWhere, order: PostSortOrder): [Post!]!
 }
 
 interface Node {
@@ -281,7 +306,7 @@ type Page {
 
 type Post implements Node {
   id: ID!
-  title: String
+  title: String!
   createdAt: Date!
   updatedAt: Date!
   UserId: ID
@@ -502,5 +527,25 @@ Array [
     "nickname": "Effy",
     "state": "member",
   },
+  Object {
+    "email": "jack@example.com",
+    "id": "650650650650650650650650-650650650650-4650650650-8650650650-650650650650650650650650650650650650",
+    "name": "Jack",
+    "nickname": "Jacky",
+    "state": "guest",
+  },
 ]
+`;
+
+exports[`schema should update a post 1`] = `
+Object {
+  "updatePost": Object {
+    "nodes": Array [
+      Object {
+        "id": "660660660660660660660660-660660660660-4660660660-8660660660-660660660660660660660660660660660660",
+        "title": "This is my new Post",
+      },
+    ],
+  },
+}
 `;

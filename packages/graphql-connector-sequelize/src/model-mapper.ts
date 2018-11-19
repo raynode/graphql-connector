@@ -87,17 +87,27 @@ export const modelMapper = createModelMapper<DataTypes, Models>((model, addAttri
     })
   })
 
-  return {
-    create: async (_, { data }) => model.create(data),
-    delete: async () => null,
-    findMany: async (_, { order, where: { where = {}, include = [] } = {} }) => {
-      const nodes = await model.findAll({ include, where, order })
-      return {
-        nodes,
-        page: createPage(0, 100, 0),
-      }
-    },
-    findOne: async () => null,
-    update: async () => null,
+  const findAll = async (include, where, order?) => {
+    const nodes = await model.findAll({ include, where, order })
+    return {
+      nodes,
+      page: createPage(0, 100, 0),
+    }
   }
+
+  const resolvers = {
+    create: async (_, { data }) => model.create(data),
+    delete: async (_, { where: { where } }) => {
+      const items = await model.findAll({ where })
+      const rows = await model.destroy({ where })
+      return items
+    },
+    findMany: async (_, { order, where: { where = {}, include = [] } = {} }) => findAll(include, where, order),
+    findOne: async (_, { order, where: { where = {}, include = [] } = {} }) => model.findOne({ include, where, order }),
+    update: async (_, { data, where: { where, include } }) => {
+      await model.update(data, { where })
+      return findAll(include, where)
+    },
+  }
+  return resolvers
 })

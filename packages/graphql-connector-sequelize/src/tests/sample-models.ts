@@ -42,7 +42,7 @@ export const User = sequelize.define('User', {
 
 export const Post = sequelize.define('Post', {
   id,
-  title: { type: Sequelize.STRING },
+  title: { type: Sequelize.STRING, allowNull: false },
 })
 
 export const Loop = sequelize.define('Loop', {

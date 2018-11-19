@@ -93,7 +93,7 @@ export const mutationFieldReducer = <Types, Models>(
         context,
         info,
       ),
-    type: model.types.type,
+    type: new GraphQLNonNull(model.types.list),
   }
 
   mutationFields[names.fields.delete] = {
@@ -106,7 +106,6 @@ export const mutationFieldReducer = <Types, Models>(
         _,
         {
           where: filterParser('where', where),
-          order: filterParser('create', order),
         },
         context,
         info,

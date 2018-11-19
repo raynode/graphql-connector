@@ -122,7 +122,7 @@ describe('schema', () => {
     const { data } = await runQuery(`{
       Users(order: id_DESC) { nodes { id name } }
     }`)
-    expect(data.Users.nodes[0].id).toEqual(uuidv4(4))
+    expect(data.Users.nodes[0].id).toEqual(uuidv4(101))
     expect(data).toMatchSnapshot()
   })
 
@@ -162,5 +162,63 @@ describe('schema', () => {
       }}
     }`)
     expect(data).toMatchSnapshot()
+  })
+
+  it('should create a post', async () => {
+    const { data } = await runQuery(`mutation {
+      createPost(data: {
+        title: "new post"
+      }) {
+        id
+      }
+    }`)
+    expect(data.createPost.id).toEqual(uuidv4(102))
+  })
+
+  it('should update a post', async () => {
+    const { data } = await runQuery(`mutation {
+      updatePost(data: {
+        title: "This is my new Post"
+      }, where: {
+        id: "${uuidv4(102)}"
+      }) { nodes {
+        id
+        title
+      } }
+    }`)
+    expect(data).toMatchSnapshot()
+  })
+
+  it('should find an updated post', async () => {
+    const { data } = await runQuery(`{
+      Post(where: {
+        id: "${uuidv4(102)}"
+      }) {
+        title
+      }
+    }`)
+    expect(data.Post.title).toEqual('This is my new Post')
+  })
+
+  it('should delete the post', async () => {
+    const { data } = await runQuery(`mutation {
+      deletePosts(where: {
+        id: "${uuidv4(102)}"
+      }) {
+        title
+      }
+    }`)
+    expect(data.deletePosts[0].title).toEqual('This is my new Post')
+  })
+
+  it('should not find the post', async () => {
+    const { data } = await runQuery(`{
+      Post(where: {
+        id: "${uuidv4(102)}"
+      }) {
+        title
+      }
+    }`)
+    expect(data.Post).toBeNull()
   })
 })
