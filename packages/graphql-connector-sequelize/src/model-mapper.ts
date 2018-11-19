@@ -1,6 +1,7 @@
 import { AnyModel, createModelMapper, GeneratedModelMapper, Page } from '@raynode/graphql-connector'
 import * as Sequelize from 'sequelize'
 import { DataTypes } from './type-guards'
+import { capitalize } from 'inflection'
 
 // somehow the sequelize types are really really bad!
 
@@ -74,7 +75,8 @@ export const modelMapper = createModelMapper<DataTypes, Models>((model, addAttri
       resolver: async (instance, args, context, info) => {
         // @TODO
         // this needs to correctly submit nodes and page when done!
-        const res = await instance[`get${association.as}`]()
+        const getter = `${capitalize(association.as)}`
+        const res = await instance[`get${getter}`]()
 
         return list
         ? {
