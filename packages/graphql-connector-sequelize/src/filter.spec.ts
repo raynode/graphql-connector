@@ -1,4 +1,5 @@
 
+import { applyFilterParser } from '@raynode/graphql-connector'
 import {
   GraphQLBoolean,
   GraphQLFloat,
@@ -9,7 +10,6 @@ import {
   GraphQLString,
   GraphQLType,
 } from 'graphql'
-import { applyFilterParser } from '@raynode/graphql-connector'
 import { filterMapper } from './filter-mapper'
 import { filterParser } from './filter-parser'
 

@@ -1,4 +1,4 @@
-import { GraphQLNonNull, GraphQLList } from 'graphql'
+import { GraphQLList, GraphQLNonNull } from 'graphql'
 import { GeneratorConfiguration } from './configuration'
 import { applyFilterParser } from './filter-field-generator'
 import { ExtendedModel } from './model'

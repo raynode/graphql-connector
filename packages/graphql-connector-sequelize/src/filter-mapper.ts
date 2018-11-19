@@ -10,9 +10,9 @@ import {
 import {
   GraphQLBoolean,
   GraphQLInt,
+  isEnumType,
   isListType,
   isScalarType,
-  isEnumType,
 } from 'graphql'
 
 export const filterMapper: FilterMapper = (name, type, list, isFilter) => {

@@ -1,4 +1,3 @@
-import { BaseSchema } from '../base-schema-generator'
 import {
   GraphQLBoolean,
   GraphQLFloat,
@@ -13,6 +12,7 @@ import {
   isType,
   printSchema,
 } from 'graphql'
+import { BaseSchema } from '../base-schema-generator'
 import { TypeMapper } from '../type-converter'
 import { createSchema } from '../utils'
 

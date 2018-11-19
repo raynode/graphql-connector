@@ -1,7 +1,7 @@
 import { AnyModel, createModelMapper, GeneratedModelMapper, Page } from '@raynode/graphql-connector'
+import { capitalize } from 'inflection'
 import * as Sequelize from 'sequelize'
 import { DataTypes } from './type-guards'
-import { capitalize } from 'inflection'
 
 // somehow the sequelize types are really really bad!
 

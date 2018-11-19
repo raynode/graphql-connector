@@ -1,6 +1,6 @@
-import { BaseSchema } from './base-schema-generator'
 import { GraphQLObjectType, GraphQLSchema, printSchema } from 'graphql'
 import { mapValues } from 'lodash'
+import { BaseSchema } from './base-schema-generator'
 
 export type RecordOf<Keys, Type> = { [key in keyof Keys]: Type }
 

@@ -1,11 +1,11 @@
-import * as Sequelize from 'sequelize'
-import { typeMapper } from './type-mapper'
-import { modelMapper } from './model-mapper'
-import { graphql, GraphQLSchema, printSchema } from 'graphql'
-import { configuration } from './index'
 import { createBaseSchemaGenerator, createSchema } from '@raynode/graphql-connector'
+import { graphql, GraphQLSchema, printSchema } from 'graphql'
+import * as Sequelize from 'sequelize'
+import { configuration } from './index'
+import { modelMapper } from './model-mapper'
+import { typeMapper } from './type-mapper'
 
-import { models, initialize, uuidv4 } from './tests/sample-models'
+import { initialize, models, uuidv4 } from './tests/sample-models'
 
 describe('model-mapper', () => {
   it('should find all attributes from a model', () => {

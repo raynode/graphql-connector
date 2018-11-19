@@ -1,9 +1,9 @@
 
-import * as Sequelize from 'sequelize'
 import {
   FilterMapperMode,
   FilterParser,
 } from '@raynode/graphql-connector'
+import * as Sequelize from 'sequelize'
 
 import { Models, SequelizeAssociation, SequelizeModel } from './model-mapper'
 import { DataTypes } from './type-guards'
