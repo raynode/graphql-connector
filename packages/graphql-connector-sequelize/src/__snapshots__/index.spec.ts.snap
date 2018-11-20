@@ -209,7 +209,6 @@ input CreatePostData {
   title: String
   createdAt: Date
   updatedAt: Date
-  UserId: ID
   User: UserWhere
 }
 
@@ -309,7 +308,6 @@ type Post implements Node {
   title: String!
   createdAt: Date!
   updatedAt: Date!
-  UserId: ID
   User: User!
 }
 
@@ -324,8 +322,6 @@ input PostFilter {
   title_like: [String!]
   title_startsWith: [String!]
   title_endsWith: [String!]
-  UserId: ID
-  UserId_in: [ID!]
 }
 
 type Posts implements List {
@@ -342,8 +338,6 @@ enum PostSortOrder {
   createdAt_DESC
   updatedAt_ASC
   updatedAt_DESC
-  UserId_ASC
-  UserId_DESC
   User_ASC
   User_DESC
 }
@@ -359,8 +353,6 @@ input PostWhere {
   title_like: [String!]
   title_startsWith: [String!]
   title_endsWith: [String!]
-  UserId: ID
-  UserId_in: [ID!]
   User_empty: UserFilter
   User_some: UserFilter
 }
@@ -387,7 +379,6 @@ input UpdatePostData {
   title: String
   createdAt: Date
   updatedAt: Date
-  UserId: ID
   User: PostWhere
 }
 

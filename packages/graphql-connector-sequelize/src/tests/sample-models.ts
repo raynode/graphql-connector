@@ -1,6 +1,7 @@
 
 import { pluralize } from 'inflection'
 import * as Sequelize from 'sequelize'
+import { SequelizeAttribute, SequelizeAttributes } from '../model-mapper'
 
 const sequelize = new Sequelize({
   dialect: 'sqlite',
@@ -16,7 +17,7 @@ export const uuidv4 = (id = random()) => 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.
 })
 // tslint:enable:no-bitwise
 
-const id = {
+const id: SequelizeAttribute = {
   type: Sequelize.UUID,
   allowNull: false,
   primaryKey: true,
@@ -43,7 +44,8 @@ export const User = sequelize.define('User', {
 export const Post = sequelize.define('Post', {
   id,
   title: { type: Sequelize.STRING, allowNull: false },
-})
+  UserId: { type: Sequelize.UUID, visible: false },
+} as SequelizeAttributes)
 
 export const Loop = sequelize.define('Loop', {
   id,
