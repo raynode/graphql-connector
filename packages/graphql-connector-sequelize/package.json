@@ -1,6 +1,6 @@
 {
   "name": "@raynode/graphql-connector-sequelize",
-  "version": "0.7.1",
+  "version": "0.7.2",
   "description": "",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -36,7 +36,7 @@
   },
   "homepage": "https://github.com/raynode/graphql-connector/src/graphql-connector-sequelize#readme",
   "dependencies": {
-    "@raynode/graphql-connector": "^0.7.1",
+    "@raynode/graphql-connector": "^0.7.2",
     "@types/lodash": "^4.14.118",
     "@types/sequelize": "^4.27.30",
     "graphql": "^14.0.2",
