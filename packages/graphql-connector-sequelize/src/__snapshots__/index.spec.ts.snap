@@ -1,5 +1,18 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`schema should change the user of the post 1`] = `
+Object {
+  "updatePost": Array [
+    Object {
+      "User": Object {
+        "name": "Admin",
+      },
+      "title": "This is my new Post",
+    },
+  ],
+}
+`;
+
 exports[`schema should correctly load the data 1`] = `
 Array [
   Object {
@@ -48,6 +61,17 @@ Object {
     "id": "650650650650650650650650-650650650650-4650650650-8650650650-650650650650650650650650650650650650",
     "name": "Jack",
     "nickname": "Jacky",
+  },
+}
+`;
+
+exports[`schema should create a post 1`] = `
+Object {
+  "createPost": Object {
+    "User": Object {
+      "name": "Frank",
+    },
+    "id": "660660660660660660660660-660660660660-4660660660-8660660660-660660660660660660660660660660660660",
   },
 }
 `;

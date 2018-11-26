@@ -165,14 +165,19 @@ describe('schema', () => {
   })
 
   it('should create a post', async () => {
-    const { data } = await runQuery(`mutation {
+    const { data, errors } = await runQuery(`mutation {
       createPost(data: {
         title: "new post"
+        User: {
+          id: "${uuidv4(4)}",
+        }
       }) {
         id
+        User { name }
       }
     }`)
     expect(data.createPost.id).toEqual(uuidv4(102))
+    expect(data).toMatchSnapshot()
   })
 
   it('should update a post', async () => {
@@ -198,6 +203,23 @@ describe('schema', () => {
       }
     }`)
     expect(data.Post.title).toEqual('This is my new Post')
+  })
+
+  it('should change the user of the post', async () => {
+    const { data } = await runQuery(`mutation {
+      updatePost(where: {
+        id: "${uuidv4(102)}"
+      }, data: {
+        User: {
+          id: "${uuidv4(1)}"
+        }
+      }) {
+        title
+        User { name }
+      }
+    }`)
+    expect(data.updatePost[0].User.name).toEqual('Admin')
+    expect(data).toMatchSnapshot()
   })
 
   it('should delete the post', async () => {

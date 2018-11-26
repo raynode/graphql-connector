@@ -24,7 +24,7 @@ export interface ParsedFilter {
 }
 export type ParserHandler = (value: any, filter: ParsedFilter) => ParsedFilter
 
-const createEmptyFilter = (): ParsedFilter => ({ where: {}, include: [] })
+export const createEmptyFilter = (): ParsedFilter => ({ where: {}, include: [] })
 
 const addInclude = (add: Include, { include, where }: ParsedFilter): ParsedFilter =>
   ({ include: [...include, ...add], where})
@@ -86,7 +86,7 @@ const conditionHandlers: Record<string, ConditionHandler> = {
 }
 
 // people who do not like recursion are people who do not ...
-const applyParser = (model: SequelizeModel, data: Record<string, any>) =>
+export const applyParser = (model: SequelizeModel, data: Record<string, any>) =>
   Object.keys(data).reduce((filters, name) => parser(model, name, data[name], filters), createEmptyFilter())
 
 export const parser = (model: SequelizeModel, name: string, value: any, filter: ParsedFilter): ParsedFilter => {

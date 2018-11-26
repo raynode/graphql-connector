@@ -2,6 +2,7 @@ import { AnyModel, createModelMapper, GeneratedModelMapper, Page } from '@raynod
 import { capitalize } from 'inflection'
 import * as Sequelize from 'sequelize'
 import { DataTypes } from './type-guards'
+import { applyParser, createEmptyFilter, ParsedFilter, parser } from './filter-parser'
 
 // somehow the sequelize types are really really bad!
 export interface SequelizeAttributeReference {
@@ -36,7 +37,7 @@ export interface SequelizeAssociation {
   targetKeyField: string
   targetKeyIsPrimary: string
   targetIdentifier: string
-  accessors: string
+  accessors: Record<string, string>
   identifierField: string
 }
 
@@ -52,6 +53,10 @@ export interface Models {
 const createPage = (offset: number, limit: number, page: number): Page => ({
   offset, limit, page,
 })
+
+export const isListAssociation = (association: SequelizeAssociation) =>
+  association.associationType === 'HasMany' || association.associationType === 'BelongsToMany'
+
 
 export const modelMapper = createModelMapper<DataTypes, Models>((model, addAttribute, addAssociation) => {
   const rawModel: SequelizeModel = model as any
@@ -71,7 +76,7 @@ export const modelMapper = createModelMapper<DataTypes, Models>((model, addAttri
 
   Object.keys(rawModel.associations).forEach(name => {
     const association = rawModel.associations[name]
-    const list = association.associationType === 'HasMany' || association.associationType === 'BelongsToMany'
+    const list = isListAssociation(association)
     addAssociation({
       name: association.as,
       model: association.target.name,
@@ -100,8 +105,27 @@ export const modelMapper = createModelMapper<DataTypes, Models>((model, addAttri
     }
   }
 
+  const findFromModel = (model: SequelizeModel, list: boolean, filter: ParsedFilter) => list
+  ? model.findAll(filter)
+  : model.findOne(filter)
+
+  const getModelData = (association, data) =>
+    findFromModel(association.target, isListAssociation(association), applyParser(association.target, data))
+
+  const reduceUpdateData = async (data: any) => {
+    await Promise.all(Object.keys(rawModel.associations).map(async name => {
+      const association = rawModel.associations[name]
+      if(!data.hasOwnProperty(name))
+        return
+      const modelData = await getModelData(association, data[name])
+      delete data[name]
+      data[association.identifierField] = modelData[association.targetIdentifier]
+    }))
+    return data
+  }
+
   const resolvers = {
-    create: async (_, { data }) => model.create(data),
+    create: async (_, { data }) => model.create(await reduceUpdateData(data)),
     delete: async (_, { where: { where } }) => {
       const deletedItems = await model.findAll({ where })
       await model.destroy({ where })
@@ -111,7 +135,16 @@ export const modelMapper = createModelMapper<DataTypes, Models>((model, addAttri
     findOne: async (_, { order, where: { where = {}, include = [] } = {} }) => model.findOne({ include, where, order }),
     update: async (_, { data, where: { where, include } }) => {
       await model.update(data, { where })
-      return model.findAll({ where })
+      const results = await model.findAll({ where })
+
+      await Promise.all(Object.keys(rawModel.associations).map(async name => {
+        const association = rawModel.associations[name]
+        if(!data.hasOwnProperty(name))
+          return
+        const modelData = await getModelData(association, data[name])
+        return Promise.all(results.map(result => result[association.accessors.set](modelData)))
+      }))
+      return results
     },
   }
   return resolvers
