@@ -1,4 +1,19 @@
+import {
+  GraphQLFieldConfigMap,
+  GraphQLID,
+  GraphQLInputObjectType,
+  GraphQLInt,
+  GraphQLInterfaceType,
+  GraphQLList,
+  GraphQLNonNull,
+  GraphQLObjectType,
+  GraphQLType,
+  Thunk,
+} from 'graphql'
+
 import { createArgsFields } from './args-filter-generator'
+import { applyDefaultConfiguration, GeneratorConfiguration, PartialGeneratorConfiguration } from './configuration'
+import { ModelFetcher, mutationFieldReducer, queryFieldReducer, subscriptionFieldReducer } from './field-reducers'
 import {
   applyFilterMapper,
   applyFilterParser,
@@ -8,36 +23,22 @@ import {
   FilterParser,
 } from './filter-field-generator'
 import { ListType, NodeType, PageInputType, PageType } from './generic-types'
-import { AnyModel, Attribute, ExtendedModel, GenericField, Model } from './model'
+import { AnyModel, Attribute, ExtendedModel, GenericField, Model, ModelFields } from './model'
 import { GeneratedModelMapper } from './model-mapper'
 import { defaultNamingStrategy, Names, NamingStrategy } from './naming-strategy'
 import { applyTypeMapper, TypeMapper } from './type-converter'
 import { RecordOf } from './utils'
 
-import {
-  GraphQLID,
-  GraphQLInputObjectType,
-  GraphQLInt,
-  GraphQLInterfaceType,
-  GraphQLList,
-  GraphQLNonNull,
-  GraphQLObjectType,
-  GraphQLType,
-} from 'graphql'
-
-import { applyDefaultConfiguration, GeneratorConfiguration, PartialGeneratorConfiguration } from './configuration'
-
-import { ModelFetcher, mutationFieldReducer, queryFieldReducer } from './field-reducers'
-
 export type ModelList<Types, Models> = Array<AnyModel<Types, Models>>
 
-export interface BaseSchema {
-  queryFields: any
-  mutationFields?: any
-  subscriptionFields?: any
+export interface BaseSchema<Models> {
+  getModel: (modelName: keyof Models) => ModelFields
+  queryFields: Thunk<GraphQLFieldConfigMap<any, any>>
+  mutationFields?: Thunk<GraphQLFieldConfigMap<any, any>>
+  subscriptionFields?: Thunk<GraphQLFieldConfigMap<any, any>>
 }
 
-export type BaseSchemaGenerator<Types, Models> = (models: Models) => BaseSchema
+export type BaseSchemaGenerator<Types, Models> = (models: Models) => BaseSchema<Models>
 
 const extendModelReducer = <Types, Models>(configuration: GeneratorConfiguration<Types, Models>, models: Models) => <
   Key extends keyof Models
@@ -169,8 +170,10 @@ const baseSchemaGenerator = <Types, Models>(configuration: GeneratorConfiguratio
 
   // 3. generator queries, mutations & subscriptions
   return {
+    getModel: name => getModel(name).types,
     queryFields: modelNames.reduce(queryFieldReducer(getModel, configuration), {}),
     mutationFields: modelNames.reduce(mutationFieldReducer(getModel, configuration), {}),
+    subscriptionFields: modelNames.reduce(subscriptionFieldReducer(getModel, configuration), {}),
   }
 }
 

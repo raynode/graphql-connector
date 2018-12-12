@@ -666,6 +666,21 @@ input QuestionWhere {
   matches_author: UserFilter
 }
 
+type Subscription {
+  onCreateUser: User!
+  onDeleteUsers: [User!]!
+  onUpdateUser: User
+  onCreatePost: Post!
+  onDeletePosts: [Post!]!
+  onUpdatePost: Post
+  onCreateComment: Comment!
+  onDeleteComments: [Comment!]!
+  onUpdateComment: Comment
+  onCreateQuestion: Question!
+  onDeleteQuestions: [Question!]!
+  onUpdateQuestion: Question
+}
+
 input UpdateCommentData {
   id: ID
   createdAt: Date
