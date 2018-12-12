@@ -24,6 +24,7 @@ module.exports = {
   collectCoverageFrom: [
     'src/**/*.{ts,tsx,js,jsx}',
     '!**/*.d.ts', // no need to test only types and interfaces
+    '!**/tests/*', // no need to test only types and interfaces
   ],
   // setupFiles: ['./jest.setup.js'],
 }

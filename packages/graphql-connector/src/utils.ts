@@ -9,7 +9,7 @@ export const applyToRecordOf = <Keys, Types, Result>(
   method: (type: Types, key: string) => Result,
 ) => mapValues(record, method) as RecordOf<Keys, Result>
 
-export const createSchema = ({ queryFields, mutationFields, subscriptionFields }: BaseSchema) => {
+export const createSchema = <Models>({ queryFields, mutationFields, subscriptionFields }: BaseSchema<Models>) => {
   const query = new GraphQLObjectType({
     name: 'Query',
     fields: queryFields,
