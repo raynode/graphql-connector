@@ -220,12 +220,13 @@ Object {
 `;
 
 exports[`schema should generate a full schema 1`] = `
-"input CreateLoopData {
+"input CreateLinkData {
   id: ID
+  title: String
+  url: String
   createdAt: Date
   updatedAt: Date
-  nextId: ID
-  next: LoopWhere
+  user: UserWhere
 }
 
 input CreatePostData {
@@ -245,6 +246,7 @@ input CreateUserData {
   createdAt: Date
   updatedAt: Date
   Posts: PostWhere
+  bookmarks: LinkWhere
 }
 
 \\"\\"\\"
@@ -252,66 +254,85 @@ A special custom Scalar type for Dates that converts to a ISO formatted string
 \\"\\"\\"
 scalar Date
 
-interface List {
-  nodes: [Node!]!
-  page: Page!
-}
-
-type Loop implements Node {
+type Link implements Node {
   id: ID!
+  title: String!
+  url: String!
   createdAt: Date!
   updatedAt: Date!
-  nextId: ID
-  next: Loop
+  user: User
 }
 
-input LoopFilter {
-  AND: [LoopFilter!]
-  OR: [LoopFilter!]
-  NOT: LoopFilter
+input LinkFilter {
+  AND: [LinkFilter!]
+  OR: [LinkFilter!]
+  NOT: LinkFilter
   id: ID
   id_in: [ID!]
-  nextId: ID
-  nextId_in: [ID!]
+  title: String
+  title_in: [String!]
+  title_like: [String!]
+  title_startsWith: [String!]
+  title_endsWith: [String!]
+  url: String
+  url_in: [String!]
+  url_like: [String!]
+  url_startsWith: [String!]
+  url_endsWith: [String!]
 }
 
-type Loops implements List {
-  nodes: [Loop!]!
+type Links implements List {
+  nodes: [Link!]!
   page: Page!
 }
 
-enum LoopSortOrder {
+enum LinkSortOrder {
   id_ASC
   id_DESC
+  title_ASC
+  title_DESC
+  url_ASC
+  url_DESC
   createdAt_ASC
   createdAt_DESC
   updatedAt_ASC
   updatedAt_DESC
-  nextId_ASC
-  nextId_DESC
-  next_ASC
-  next_DESC
+  user_ASC
+  user_DESC
 }
 
-input LoopWhere {
-  AND: [LoopFilter!]
-  OR: [LoopFilter!]
-  NOT: LoopFilter
+input LinkWhere {
+  AND: [LinkFilter!]
+  OR: [LinkFilter!]
+  NOT: LinkFilter
   id: ID
   id_in: [ID!]
-  nextId: ID
-  nextId_in: [ID!]
-  next_empty: LoopFilter
-  next_some: LoopFilter
+  title: String
+  title_in: [String!]
+  title_like: [String!]
+  title_startsWith: [String!]
+  title_endsWith: [String!]
+  url: String
+  url_in: [String!]
+  url_like: [String!]
+  url_startsWith: [String!]
+  url_endsWith: [String!]
+  user_empty: UserFilter
+  user_some: UserFilter
+}
+
+interface List {
+  nodes: [Node!]!
+  page: Page!
 }
 
 type Mutation {
   createUser(data: CreateUserData): User
   updateUser(data: UpdateUserData, where: UserWhere): [User!]!
   deleteUsers(where: UserWhere, order: UserSortOrder): [User!]!
-  createLoop(data: CreateLoopData): Loop
-  updateLoop(data: UpdateLoopData, where: LoopWhere): [Loop!]!
-  deleteLoops(where: LoopWhere, order: LoopSortOrder): [Loop!]!
+  createLink(data: CreateLinkData): Link
+  updateLink(data: UpdateLinkData, where: LinkWhere): [Link!]!
+  deleteLinks(where: LinkWhere, order: LinkSortOrder): [Link!]!
   createPost(data: CreatePostData): Post
   updatePost(data: UpdatePostData, where: PostWhere): [Post!]!
   deletePosts(where: PostWhere, order: PostSortOrder): [Post!]!
@@ -384,18 +405,31 @@ input PostWhere {
 type Query {
   User(where: UserWhere, order: UserSortOrder): User
   Users(where: UserWhere, order: UserSortOrder): Users!
-  Loop(where: LoopWhere, order: LoopSortOrder): Loop
-  Loops(where: LoopWhere, order: LoopSortOrder): Loops!
+  Link(where: LinkWhere, order: LinkSortOrder): Link
+  Links(where: LinkWhere, order: LinkSortOrder): Links!
   Post(where: PostWhere, order: PostSortOrder): Post
   Posts(where: PostWhere, order: PostSortOrder): Posts!
 }
 
-input UpdateLoopData {
+type Subscription {
+  onCreateUser: User!
+  onDeleteUsers: [User!]!
+  onUpdateUser: User
+  onCreateLink: Link!
+  onDeleteLinks: [Link!]!
+  onUpdateLink: Link
+  onCreatePost: Post!
+  onDeletePosts: [Post!]!
+  onUpdatePost: Post
+}
+
+input UpdateLinkData {
   id: ID
+  title: String
+  url: String
   createdAt: Date
   updatedAt: Date
-  nextId: ID
-  next: LoopWhere
+  user: LinkWhere
 }
 
 input UpdatePostData {
@@ -415,6 +449,7 @@ input UpdateUserData {
   createdAt: Date
   updatedAt: Date
   Posts: UserWhere
+  bookmarks: UserWhere
 }
 
 type User implements Node {
@@ -426,6 +461,7 @@ type User implements Node {
   createdAt: Date!
   updatedAt: Date!
   Posts: Posts
+  bookmarks: Links
 }
 
 input UserFilter {
@@ -475,6 +511,8 @@ enum UserSortOrder {
   updatedAt_DESC
   Posts_ASC
   Posts_DESC
+  bookmarks_ASC
+  bookmarks_DESC
 }
 
 enum UserStateEnumType {
@@ -508,6 +546,8 @@ input UserWhere {
   email_endsWith: [String!]
   Posts_empty: PostFilter
   Posts_some: PostFilter
+  bookmarks_empty: LinkFilter
+  bookmarks_some: LinkFilter
 }
 "
 `;

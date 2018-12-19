@@ -20,17 +20,17 @@ describe('model-mapper', () => {
     expect(Object.keys(result.attributes)).toHaveLength(7)
   })
 
-  it('should find the attributes of a Loop', () => {
-    const result = modelMapper('Loop', models.Loop)
-    expect(result.attributes).toHaveProperty('id')
-    expect(result.attributes).toHaveProperty('createdAt')
-    expect(result.attributes).toHaveProperty('updatedAt')
-  })
+  // it('should find the attributes of a Loop', () => {
+  //   const result = modelMapper('Loop', models.Loop)
+  //   expect(result.attributes).toHaveProperty('id')
+  //   expect(result.attributes).toHaveProperty('createdAt')
+  //   expect(result.attributes).toHaveProperty('updatedAt')
+  // })
 
-  it('should find the association of a Loop', () => {
-    const result = modelMapper('Loop', models.Loop)
-    expect(result.associations).toHaveProperty('next')
-  })
+  // it('should find the association of a Loop', () => {
+  //   const result = modelMapper('Loop', models.Loop)
+  //   expect(result.associations).toHaveProperty('next')
+  // })
 })
 
 describe('schema', () => {
@@ -242,5 +242,22 @@ describe('schema', () => {
       }
     }`)
     expect(data.Post).toBeNull()
+  })
+
+  it('should create a bookmark for Paulchen', async () => {
+    const { data } = await runQuery(`mutation {
+      createLink(data: {
+        url: "https://example.com"
+        title: "Examples"
+        user: {
+          nickname: "Paulchen"
+        }
+      }) {
+        id
+        title
+        url
+        user { name nickname }
+      }
+    }`)
   })
 })

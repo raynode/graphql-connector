@@ -57,7 +57,6 @@ const createPage = (offset: number, limit: number, page: number): Page => ({
 export const isListAssociation = (association: SequelizeAssociation) =>
   association.associationType === 'HasMany' || association.associationType === 'BelongsToMany'
 
-
 export const modelMapper = createModelMapper<DataTypes, Models>((model, addAttribute, addAssociation) => {
   const rawModel: SequelizeModel = model as any
   Object.keys(rawModel.rawAttributes).forEach(name => {
@@ -109,7 +108,7 @@ export const modelMapper = createModelMapper<DataTypes, Models>((model, addAttri
   ? model.findAll(filter)
   : model.findOne(filter)
 
-  const getModelData = (association, data) =>
+  const getModelData = (association: SequelizeAssociation, data: any) =>
     findFromModel(association.target, isListAssociation(association), applyParser(association.target, data))
 
   const reduceUpdateData = async (data: any) => {

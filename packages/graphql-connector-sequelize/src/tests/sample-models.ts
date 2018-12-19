@@ -1,3 +1,4 @@
+// tslint:disable:no-object-literal-type-assertion
 
 import { pluralize } from 'inflection'
 import * as Sequelize from 'sequelize'
@@ -47,17 +48,19 @@ export const Post = sequelize.define('Post', {
   UserId: { type: Sequelize.UUID, allowNull: false, visible: false },
 } as SequelizeAttributes)
 
-export const Loop = sequelize.define('Loop', {
+export const Link = sequelize.define('Link', {
   id,
-})
+  title: { type: Sequelize.STRING, allowNull: false },
+  url: { type: Sequelize.STRING, allowNull: false },
+  UserId: { type: Sequelize.UUID, allowNull: true, visible: false },
+} as SequelizeAttributes)
 
 User.hasMany(Post)
 Post.belongsTo(User)
-Loop.hasOne(Loop, {
-  as: 'next',
-})
+User.hasMany(Link, { as: 'bookmarks', foreignKey: 'UserId', sourceKey: 'id' })
+Link.hasOne(User, { as: 'user', foreignKey: 'id', constraints: false })
 
-export const models = { User, Loop, Post }
+export const models = { User, Link, Post }
 
 export const initialize = async () => {
   // tslint:disable:max-line-length
