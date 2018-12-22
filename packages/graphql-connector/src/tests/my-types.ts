@@ -24,7 +24,7 @@ export class DBDateType extends DBType {
 }
 export class DBListType extends DBType {
   private type: any[]
-  public constructor(public subtype: DBType) {
+  public constructor(public subtype: DBType, public paginated = true) {
     super()
   }
 }

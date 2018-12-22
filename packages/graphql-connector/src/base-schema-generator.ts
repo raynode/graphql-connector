@@ -63,8 +63,8 @@ const extendModelReducer = <Types, Models>(configuration: GeneratorConfiguration
     name: names.fields.findMany,
     interfaces: [ListType],
     fields: () => ({
-      nodes: { type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(type))) },
-      page: { type: new GraphQLNonNull(PageType) },
+      nodes: { type: GraphQLNonNull(GraphQLList(GraphQLNonNull(type))) },
+      page: { type: GraphQLNonNull(PageType) },
     }),
   })
 
@@ -121,7 +121,7 @@ const dataTypeGenerator = <Types, Models>(
 
   model.dataTypes = {
     type: fields.reduce((dataFields, { name, nonNull, resolver: resolve, type: fieldType }) => {
-      dataFields[name] = { type: nonNull ? new GraphQLNonNull(fieldType) : fieldType, resolve }
+      dataFields[name] = { type: nonNull ? GraphQLNonNull(fieldType) : fieldType, resolve }
       return dataFields
     }, {}),
     create: fields.reduce((create, { name, fieldType, type, model }) => {

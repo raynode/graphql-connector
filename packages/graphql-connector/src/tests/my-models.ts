@@ -81,10 +81,14 @@ export class Instance<Attrs, M extends Model<DBTypeRecord>> {
   }
 }
 
+export interface ModelOptions {
+  paginated: boolean
+}
+
 export class Model<Attrs extends DBTypeRecord> {
   public attributes: Attributes<Attrs> = {} as any
 
-  public constructor(public name: string, attributes: Attrs) {
+  public constructor(public name: string, attributes: Attrs, public paginated = true) {
     // add the id, createdAt, lastUpdate fields
     this.attributes.id = new myTypes.DBIDType(name)
     this.attributes.createdAt = new myTypes.DBDateType()
@@ -100,8 +104,12 @@ export class Model<Attrs extends DBTypeRecord> {
     this.attributes[as] = new myTypes.DBIDType(model.name, 'id', this.name, sourceAttribute)
   }
 
-  public hasMany(model: Model<any>, as: string, sourceAttribute: string) {
-    this.attributes[as] = new myTypes.DBListType(new myTypes.DBIDType(model.name, sourceAttribute, this.name))
+  public hasMany(model: Model<any>, as: string, sourceAttribute: string, paginated = true) {
+    // tslint:disable-next-line:max-line-length
+    this.attributes[as] = new myTypes.DBListType(
+      new myTypes.DBIDType(model.name, sourceAttribute, this.name),
+      paginated,
+    )
   }
 
   // this is not implemented for the example
@@ -173,7 +181,7 @@ const DBCommentModel = new Model('Comment', {
 // The user is the main model, every other model connects to the user by the user.id field
 DBUserModel.hasMany(DBPostModel, 'posts', 'userId') // a post has a userId field
 DBUserModel.hasMany(DBCommentModel, 'comments', 'commentor') // a comment has a commentor field
-DBUserModel.hasMany(DBQuestionModel, 'questions', 'userId')
+DBUserModel.hasMany(DBQuestionModel, 'questions', 'userId', false)
 
 // A Post is a 2nd class model, it belongs to a specific user by userId and has many comments
 DBPostModel.belongsTo(DBUserModel, 'author', 'userId')

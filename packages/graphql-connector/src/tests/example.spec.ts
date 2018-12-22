@@ -129,6 +129,13 @@ describe('the example code', async () => {
       return data
     }
 
+    const findManyPaginated = async (model: Model<any>, filter: ReturnType<typeof buildFilterFn>) => {
+      const nodes = await model.findMany(filter)
+      return {
+        page: null,
+        nodes,
+      }
+    }
     // The modelMapper is responsible to convert a my-model into a graphql-connector model
     // a graphql-connector model needs attributes, associations
     // each association and attribute could be setup with an resolver here
@@ -151,12 +158,8 @@ describe('the example code', async () => {
           // create a resolver that handles the model resolve
           const resolver = async (instance: any, args, context) => {
             const source = myModels[type.source]
-            return !list
-              ? source.findOne(filterFn(instance))
-              : {
-                  nodes: await source.findMany(filterFn(instance)),
-                  page: null,
-                }
+            if (!list) return source.findOne(filterFn(instance))
+            return findManyPaginated(source, filterFn(instance))
           }
           // add this as an accociation, the type.source type conversion is needed as the types do not know this type
           return addAssociation({ list, model: type.source as keyof Models, name, resolver })
@@ -171,12 +174,7 @@ describe('the example code', async () => {
       // create the base resolvers
       // only implemented the findOne, findMany and create resolver as I am lazy
       return {
-        findMany: async (_, { where, order }) => {
-          return {
-            nodes: await model.findMany(buildFilterFn(where)),
-            page: null,
-          }
-        },
+        findMany: async (_, { where, order }) => findManyPaginated(model, buildFilterFn(where)),
         create: async (_, { data }) => (model.create as any)(data),
         findOne: async (_, { where }) => model.findOne(buildFilterFn(where)),
         delete: async () => null,

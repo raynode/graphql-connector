@@ -18,7 +18,7 @@ Array [
   Object {
     "createdAt": "2018-11-09T16:00:00.000Z",
     "email": "admin@example.com",
-    "id": "1010101010101010-10101010-4101010-8101010-101010101010101010101010",
+    "id": "1",
     "name": "Admin",
     "nickname": "Admin",
     "state": "admin",
@@ -27,7 +27,7 @@ Array [
   Object {
     "createdAt": "2018-11-09T16:30:00.000Z",
     "email": "georg@example.com",
-    "id": "2020202020202020-20202020-4202020-8202020-202020202020202020202020",
+    "id": "2",
     "name": "Georg",
     "nickname": "Mr.G!",
     "state": "member",
@@ -36,7 +36,7 @@ Array [
   Object {
     "createdAt": "2018-11-09T16:40:00.000Z",
     "email": "paul@example.com",
-    "id": "3030303030303030-30303030-4303030-8303030-303030303030303030303030",
+    "id": "3",
     "name": "Paul",
     "nickname": "Paulchen",
     "state": "guest",
@@ -45,7 +45,7 @@ Array [
   Object {
     "createdAt": "2018-11-09T16:50:00.000Z",
     "email": "frank@example.com",
-    "id": "4040404040404040-40404040-4404040-8404040-404040404040404040404040",
+    "id": "4",
     "name": "Frank",
     "nickname": "Effy",
     "state": "member",
@@ -54,11 +54,25 @@ Array [
 ]
 `;
 
+exports[`schema should create a bookmark for Paulchen 1`] = `
+Object {
+  "createLink": Object {
+    "id": "105",
+    "title": "Examples",
+    "url": "https://example.com",
+    "user": Object {
+      "name": "Paul",
+      "nickname": "Paulchen",
+    },
+  },
+}
+`;
+
 exports[`schema should create a new user 1`] = `
 Object {
   "newUser": Object {
     "email": "jack@example.com",
-    "id": "650650650650650650650650-650650650650-4650650650-8650650650-650650650650650650650650650650650650",
+    "id": "101",
     "name": "Jack",
     "nickname": "Jacky",
   },
@@ -71,7 +85,7 @@ Object {
     "User": Object {
       "name": "Frank",
     },
-    "id": "660660660660660660660660-660660660660-4660660660-8660660660-660660660660660660660660660660660660",
+    "id": "102",
   },
 }
 `;
@@ -154,7 +168,7 @@ Object {
 exports[`schema should find only Georg 1`] = `
 Object {
   "email": "jack@example.com",
-  "id": "650650650650650650650650-650650650650-4650650650-8650650650-650650650650650650650650650650650650",
+  "id": "101",
   "name": "Jack",
   "nickname": "Jacky",
   "state": "guest",
@@ -166,23 +180,23 @@ Object {
   "Users": Object {
     "nodes": Array [
       Object {
-        "id": "1010101010101010-10101010-4101010-8101010-101010101010101010101010",
+        "id": "1",
         "name": "Admin",
       },
       Object {
-        "id": "2020202020202020-20202020-4202020-8202020-202020202020202020202020",
+        "id": "2",
         "name": "Georg",
       },
       Object {
-        "id": "3030303030303030-30303030-4303030-8303030-303030303030303030303030",
+        "id": "3",
         "name": "Paul",
       },
       Object {
-        "id": "4040404040404040-40404040-4404040-8404040-404040404040404040404040",
+        "id": "4",
         "name": "Frank",
       },
       Object {
-        "id": "650650650650650650650650-650650650650-4650650650-8650650650-650650650650650650650650650650650650",
+        "id": "101",
         "name": "Jack",
       },
     ],
@@ -195,23 +209,23 @@ Object {
   "Users": Object {
     "nodes": Array [
       Object {
-        "id": "650650650650650650650650-650650650650-4650650650-8650650650-650650650650650650650650650650650650",
+        "id": "101",
         "name": "Jack",
       },
       Object {
-        "id": "4040404040404040-40404040-4404040-8404040-404040404040404040404040",
+        "id": "4",
         "name": "Frank",
       },
       Object {
-        "id": "3030303030303030-30303030-4303030-8303030-303030303030303030303030",
+        "id": "3",
         "name": "Paul",
       },
       Object {
-        "id": "2020202020202020-20202020-4202020-8202020-202020202020202020202020",
+        "id": "2",
         "name": "Georg",
       },
       Object {
-        "id": "1010101010101010-10101010-4101010-8101010-101010101010101010101010",
+        "id": "1",
         "name": "Admin",
       },
     ],
@@ -227,6 +241,7 @@ exports[`schema should generate a full schema 1`] = `
   createdAt: Date
   updatedAt: Date
   user: UserWhere
+  tags: TagWhere
 }
 
 input CreatePostData {
@@ -235,6 +250,17 @@ input CreatePostData {
   createdAt: Date
   updatedAt: Date
   User: UserWhere
+  tags: TagWhere
+}
+
+input CreateTagData {
+  id: ID
+  tag: String
+  createdAt: Date
+  updatedAt: Date
+  Users: UserWhere
+  Links: LinkWhere
+  Posts: PostWhere
 }
 
 input CreateUserData {
@@ -247,6 +273,7 @@ input CreateUserData {
   updatedAt: Date
   Posts: PostWhere
   bookmarks: LinkWhere
+  tags: TagWhere
 }
 
 \\"\\"\\"
@@ -261,6 +288,7 @@ type Link implements Node {
   createdAt: Date!
   updatedAt: Date!
   user: User
+  tags: Tags!
 }
 
 input LinkFilter {
@@ -299,6 +327,8 @@ enum LinkSortOrder {
   updatedAt_DESC
   user_ASC
   user_DESC
+  tags_ASC
+  tags_DESC
 }
 
 input LinkWhere {
@@ -319,6 +349,8 @@ input LinkWhere {
   url_endsWith: [String!]
   user_empty: UserFilter
   user_some: UserFilter
+  tags_empty: TagFilter
+  tags_some: TagFilter
 }
 
 interface List {
@@ -336,6 +368,9 @@ type Mutation {
   createPost(data: CreatePostData): Post
   updatePost(data: UpdatePostData, where: PostWhere): [Post!]!
   deletePosts(where: PostWhere, order: PostSortOrder): [Post!]!
+  createTag(data: CreateTagData): Tag
+  updateTag(data: UpdateTagData, where: TagWhere): [Tag!]!
+  deleteTags(where: TagWhere, order: TagSortOrder): [Tag!]!
 }
 
 interface Node {
@@ -353,7 +388,8 @@ type Post implements Node {
   title: String!
   createdAt: Date!
   updatedAt: Date!
-  User: User!
+  User: User
+  tags: Tags!
 }
 
 input PostFilter {
@@ -385,6 +421,8 @@ enum PostSortOrder {
   updatedAt_DESC
   User_ASC
   User_DESC
+  tags_ASC
+  tags_DESC
 }
 
 input PostWhere {
@@ -400,6 +438,8 @@ input PostWhere {
   title_endsWith: [String!]
   User_empty: UserFilter
   User_some: UserFilter
+  tags_empty: TagFilter
+  tags_some: TagFilter
 }
 
 type Query {
@@ -409,6 +449,8 @@ type Query {
   Links(where: LinkWhere, order: LinkSortOrder): Links!
   Post(where: PostWhere, order: PostSortOrder): Post
   Posts(where: PostWhere, order: PostSortOrder): Posts!
+  Tag(where: TagWhere, order: TagSortOrder): Tag
+  Tags(where: TagWhere, order: TagSortOrder): Tags!
 }
 
 type Subscription {
@@ -421,6 +463,75 @@ type Subscription {
   onCreatePost: Post!
   onDeletePosts: [Post!]!
   onUpdatePost: Post
+  onCreateTag: Tag!
+  onDeleteTags: [Tag!]!
+  onUpdateTag: Tag
+}
+
+type Tag implements Node {
+  id: ID!
+  tag: String!
+  createdAt: Date!
+  updatedAt: Date!
+  Users: Users!
+  Links: Links!
+  Posts: Posts!
+}
+
+input TagFilter {
+  AND: [TagFilter!]
+  OR: [TagFilter!]
+  NOT: TagFilter
+  id: ID
+  id_in: [ID!]
+  tag: String
+  tag_in: [String!]
+  tag_like: [String!]
+  tag_startsWith: [String!]
+  tag_endsWith: [String!]
+}
+
+type Tags implements List {
+  nodes: [Tag!]!
+  page: Page!
+}
+
+enum TagSortOrder {
+  id_ASC
+  id_DESC
+  tag_ASC
+  tag_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  TagLinks_ASC
+  TagLinks_DESC
+  Users_ASC
+  Users_DESC
+  Links_ASC
+  Links_DESC
+  Posts_ASC
+  Posts_DESC
+}
+
+input TagWhere {
+  AND: [TagFilter!]
+  OR: [TagFilter!]
+  NOT: TagFilter
+  id: ID
+  id_in: [ID!]
+  tag: String
+  tag_in: [String!]
+  tag_like: [String!]
+  tag_startsWith: [String!]
+  tag_endsWith: [String!]
+  Users_empty: UserFilter
+  Users_some: UserFilter
+  Links_empty: LinkFilter
+  Links_some: LinkFilter
+  Posts_empty: PostFilter
+  Posts_some: PostFilter
 }
 
 input UpdateLinkData {
@@ -430,6 +541,7 @@ input UpdateLinkData {
   createdAt: Date
   updatedAt: Date
   user: LinkWhere
+  tags: LinkWhere
 }
 
 input UpdatePostData {
@@ -438,6 +550,17 @@ input UpdatePostData {
   createdAt: Date
   updatedAt: Date
   User: PostWhere
+  tags: PostWhere
+}
+
+input UpdateTagData {
+  id: ID
+  tag: String
+  createdAt: Date
+  updatedAt: Date
+  Users: TagWhere
+  Links: TagWhere
+  Posts: TagWhere
 }
 
 input UpdateUserData {
@@ -450,6 +573,7 @@ input UpdateUserData {
   updatedAt: Date
   Posts: UserWhere
   bookmarks: UserWhere
+  tags: UserWhere
 }
 
 type User implements Node {
@@ -460,8 +584,9 @@ type User implements Node {
   email: String!
   createdAt: Date!
   updatedAt: Date!
-  Posts: Posts
-  bookmarks: Links
+  Posts: Posts!
+  bookmarks: Links!
+  tags: Tags!
 }
 
 input UserFilter {
@@ -513,6 +638,8 @@ enum UserSortOrder {
   Posts_DESC
   bookmarks_ASC
   bookmarks_DESC
+  tags_ASC
+  tags_DESC
 }
 
 enum UserStateEnumType {
@@ -548,6 +675,8 @@ input UserWhere {
   Posts_some: PostFilter
   bookmarks_empty: LinkFilter
   bookmarks_some: LinkFilter
+  tags_empty: TagFilter
+  tags_some: TagFilter
 }
 "
 `;
@@ -556,35 +685,35 @@ exports[`schema should now find Georg as well 1`] = `
 Array [
   Object {
     "email": "admin@example.com",
-    "id": "1010101010101010-10101010-4101010-8101010-101010101010101010101010",
+    "id": "1",
     "name": "Admin",
     "nickname": "Admin",
     "state": "admin",
   },
   Object {
     "email": "georg@example.com",
-    "id": "2020202020202020-20202020-4202020-8202020-202020202020202020202020",
+    "id": "2",
     "name": "Georg",
     "nickname": "Mr.G!",
     "state": "member",
   },
   Object {
     "email": "paul@example.com",
-    "id": "3030303030303030-30303030-4303030-8303030-303030303030303030303030",
+    "id": "3",
     "name": "Paul",
     "nickname": "Paulchen",
     "state": "guest",
   },
   Object {
     "email": "frank@example.com",
-    "id": "4040404040404040-40404040-4404040-8404040-404040404040404040404040",
+    "id": "4",
     "name": "Frank",
     "nickname": "Effy",
     "state": "member",
   },
   Object {
     "email": "jack@example.com",
-    "id": "650650650650650650650650-650650650650-4650650650-8650650650-650650650650650650650650650650650650",
+    "id": "101",
     "name": "Jack",
     "nickname": "Jacky",
     "state": "guest",
@@ -596,7 +725,7 @@ exports[`schema should update a post 1`] = `
 Object {
   "updatePost": Array [
     Object {
-      "id": "660660660660660660660660-660660660660-4660660660-8660660660-660660660660660660660660660660660660",
+      "id": "102",
       "title": "This is my new Post",
     },
   ],

@@ -24,6 +24,7 @@ Instance {
   "model": Model {
     "attributes": Object {
       "comments": DBListType {
+        "paginated": true,
         "subtype": DBIDType {
           "source": "Comment",
           "sourceAttribute": "commentor",
@@ -45,6 +46,7 @@ Instance {
       "num": DBIntType {},
       "password": DBStringType {},
       "posts": DBListType {
+        "paginated": true,
         "subtype": DBIDType {
           "source": "Post",
           "sourceAttribute": "userId",
@@ -53,6 +55,7 @@ Instance {
         },
       },
       "questions": DBListType {
+        "paginated": false,
         "subtype": DBIDType {
           "source": "Question",
           "sourceAttribute": "userId",
@@ -62,6 +65,7 @@ Instance {
       },
     },
     "name": "User",
+    "paginated": true,
   },
 }
 `;
@@ -107,6 +111,7 @@ Instance {
   "model": Model {
     "attributes": Object {
       "answers": DBListType {
+        "paginated": true,
         "subtype": DBStringType {},
       },
       "author": DBIDType {
@@ -127,6 +132,7 @@ Instance {
       "userId": null,
     },
     "name": "Question",
+    "paginated": true,
   },
 }
 `;

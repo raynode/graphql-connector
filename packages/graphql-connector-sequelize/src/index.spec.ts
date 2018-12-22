@@ -19,18 +19,6 @@ describe('model-mapper', () => {
     expect(result.attributes).toHaveProperty('updatedAt')
     expect(Object.keys(result.attributes)).toHaveLength(7)
   })
-
-  // it('should find the attributes of a Loop', () => {
-  //   const result = modelMapper('Loop', models.Loop)
-  //   expect(result.attributes).toHaveProperty('id')
-  //   expect(result.attributes).toHaveProperty('createdAt')
-  //   expect(result.attributes).toHaveProperty('updatedAt')
-  // })
-
-  // it('should find the association of a Loop', () => {
-  //   const result = modelMapper('Loop', models.Loop)
-  //   expect(result.associations).toHaveProperty('next')
-  // })
 })
 
 describe('schema', () => {
@@ -259,5 +247,48 @@ describe('schema', () => {
         user { name nickname }
       }
     }`)
+    expect(data).toMatchSnapshot()
+  })
+
+  it('should create a link with a tag', async () => {
+    const { data } = await runQuery(`mutation {
+      createLink(data: {
+        url: "https://example.com"
+        title: "Mehr Examples"
+        tags: {
+          tag: "Nice Pages"
+        }
+      }) {
+        id
+        title
+        url
+        tags { nodes { tag } }
+      }
+    }`)
+    expect(data.createLink.tags.nodes).toHaveLength(1)
+  })
+
+  it('should list all links', async () => {
+    const { data, errors } = await runQuery(`{
+      Links { nodes {
+        id
+        title
+        url
+        user { name nickname }
+        tags { nodes { tag } }
+      } }
+    }`)
+    if(errors) return console.log(errors)
+    console.log(data.Links.nodes)
+  })
+
+  it('should list all tags', async () => {
+    const { data, errors } = await runQuery(`{
+      Tags(where: { tag: "Nice Pages" }) { nodes {
+        tag
+      } }
+    }`)
+    if(errors) return console.log(errors)
+    console.log(data.Tags.nodes)
   })
 })

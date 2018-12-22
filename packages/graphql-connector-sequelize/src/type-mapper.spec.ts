@@ -86,6 +86,7 @@ describe('type-mapper', () => {
         list: false,
         name: 'Sample',
         nonNull: false,
+        pagination: false,
         resolver: () => null,
         type: new Constructor(),
       }
@@ -101,6 +102,7 @@ describe('type-mapper', () => {
         list: false,
         name: 'Sample',
         nonNull: false,
+        pagination: false,
         resolver: () => null,
         type: new Constructor(),
       }
@@ -116,6 +118,7 @@ describe('type-mapper', () => {
         list: false,
         name: 'Sample',
         nonNull: false,
+        pagination: false,
         resolver: () => null,
         type: new Constructor(...args),
       }

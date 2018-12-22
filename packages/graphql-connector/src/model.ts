@@ -64,6 +64,7 @@ export interface BaseAttribute<Inst, Result = any> {
   name: string
   nonNull: boolean
   list: boolean
+  pagination: boolean
   resolver?: Resolver<Inst, any, any, Result>
 }
 export type PartialBaseAttribute<Inst> = Partial<BaseAttribute<Inst>>
@@ -95,11 +96,11 @@ export interface PartialAttribute<Inst, Types> extends PartialBaseAttribute<Inst
 export interface Association<Inst, Models> extends BaseAttribute<Inst> {
   fieldType: AssociationFieldType
   model: keyof Models
-  resolver: Resolver<Inst, any, any, Models>
+  resolver: Resolver<Inst, any, any, Inst | Paged<Inst>>
 }
 export interface PartialAssociation<Inst, Models> extends PartialBaseAttribute<Inst> {
   model: keyof Models
-  resolver: Resolver<Inst, any, any, Models>
+  resolver: Resolver<Inst, any, any, Inst | Paged<Inst>>
 }
 export type Attributes<Inst, Attrs, Types> = RecordOf<Attrs, Attribute<Inst, Types>>
 export type PartialAttributes<Inst, Attrs, Types> = RecordOf<Attrs, PartialAttribute<Inst, Types>>
@@ -126,6 +127,7 @@ export const completeBaseAttribute = <Inst>(
   list: false,
   name,
   nonNull: false,
+  pagination: fieldType === 'Association' ? true : false,
   ...attribute,
   fieldType,
 })
