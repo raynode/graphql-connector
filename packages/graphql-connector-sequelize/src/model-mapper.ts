@@ -112,9 +112,7 @@ export const modelMapper = createModelMapper<DataTypes, Models>((localModel, add
       resolver: async (instance, args, context, info) => {
         // @TODO
         // this needs to correctly submit nodes and page when done!
-        const getter = `${capitalize(association.as)}`
-        const res = await instance[`get${getter}`]()
-
+        const res = await instance[association.accessors.get]()
         return list
         ? {
           nodes: res,
