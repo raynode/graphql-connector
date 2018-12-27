@@ -175,6 +175,14 @@ Object {
 }
 `;
 
+exports[`schema should find only one Tag 1`] = `
+Array [
+  Object {
+    "tag": "Nice Pages",
+  },
+]
+`;
+
 exports[`schema should find the users in ascending order of id 1`] = `
 Object {
   "Users": Object {
@@ -309,6 +317,11 @@ input LinkFilter {
   url_endsWith: [String!]
 }
 
+input LinkPage {
+  limit: Int
+  offset: Int
+}
+
 type Links implements List {
   nodes: [Link!]!
   page: Page!
@@ -405,6 +418,11 @@ input PostFilter {
   title_endsWith: [String!]
 }
 
+input PostPage {
+  limit: Int
+  offset: Int
+}
+
 type Posts implements List {
   nodes: [Post!]!
   page: Page!
@@ -444,13 +462,13 @@ input PostWhere {
 
 type Query {
   User(where: UserWhere, order: UserSortOrder): User
-  Users(where: UserWhere, order: UserSortOrder): Users!
+  Users(order: UserSortOrder, page: UserPage, where: UserWhere): Users!
   Link(where: LinkWhere, order: LinkSortOrder): Link
-  Links(where: LinkWhere, order: LinkSortOrder): Links!
+  Links(order: LinkSortOrder, page: LinkPage, where: LinkWhere): Links!
   Post(where: PostWhere, order: PostSortOrder): Post
-  Posts(where: PostWhere, order: PostSortOrder): Posts!
+  Posts(order: PostSortOrder, page: PostPage, where: PostWhere): Posts!
   Tag(where: TagWhere, order: TagSortOrder): Tag
-  Tags(where: TagWhere, order: TagSortOrder): Tags!
+  Tags(order: TagSortOrder, page: TagPage, where: TagWhere): Tags!
 }
 
 type Subscription {
@@ -489,6 +507,11 @@ input TagFilter {
   tag_like: [String!]
   tag_startsWith: [String!]
   tag_endsWith: [String!]
+}
+
+input TagPage {
+  limit: Int
+  offset: Int
 }
 
 type Tags implements List {
@@ -614,6 +637,11 @@ input UserFilter {
   email_endsWith: [String!]
 }
 
+input UserPage {
+  limit: Int
+  offset: Int
+}
+
 type Users implements List {
   nodes: [User!]!
   page: Page!
@@ -679,6 +707,65 @@ input UserWhere {
   tags_some: TagFilter
 }
 "
+`;
+
+exports[`schema should handle pagination 1`] = `
+Object {
+  "first2": Array [
+    Object {
+      "id": "1",
+      "name": "Admin",
+      "nickname": "Admin",
+    },
+    Object {
+      "id": "4",
+      "name": "Frank",
+      "nickname": "Effy",
+    },
+  ],
+  "skip1": Array [
+    Object {
+      "id": "4",
+      "name": "Frank",
+      "nickname": "Effy",
+    },
+    Object {
+      "id": "101",
+      "name": "Jack",
+      "nickname": "Jacky",
+    },
+  ],
+}
+`;
+
+exports[`schema should list all links 1`] = `
+Array [
+  Object {
+    "id": "105",
+    "tags": Object {
+      "nodes": Array [],
+    },
+    "title": "Examples",
+    "url": "https://example.com",
+    "user": Object {
+      "name": "Paul",
+      "nickname": "Paulchen",
+    },
+  },
+  Object {
+    "id": "106",
+    "tags": Object {
+      "nodes": Array [
+        Object {
+          "tag": "Nice Pages",
+        },
+      ],
+    },
+    "title": "Mehr Examples",
+    "url": "https://example.com",
+    "user": null,
+  },
+]
 `;
 
 exports[`schema should now find Georg as well 1`] = `

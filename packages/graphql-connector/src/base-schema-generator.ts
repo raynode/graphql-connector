@@ -22,7 +22,7 @@ import {
   FilterMapper,
   FilterParser,
 } from './filter-field-generator'
-import { ListType, NodeType, PageInputType, PageType } from './generic-types'
+import { ListType, NodeType, PageType } from './generic-types'
 import { AnyModel, Attribute, ExtendedModel, GenericField, Model, ModelFields } from './model'
 import { GeneratedModelMapper } from './model-mapper'
 import { defaultNamingStrategy, Names, NamingStrategy } from './naming-strategy'

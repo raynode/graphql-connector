@@ -279,16 +279,29 @@ describe('schema', () => {
       } }
     }`)
     if(errors) return console.log(errors)
-    console.log(data.Links.nodes)
+    expect(data.Links.nodes).toMatchSnapshot()
   })
 
-  it('should list all tags', async () => {
-    const { data, errors } = await runQuery(`{
+  it('should find only one Tag', async () => {
+    const { data } = await runQuery(`{
       Tags(where: { tag: "Nice Pages" }) { nodes {
         tag
       } }
     }`)
-    if(errors) return console.log(errors)
-    console.log(data.Tags.nodes)
+    expect(data.Tags.nodes).toMatchSnapshot()
+  })
+
+  it('should handle pagination', async () => {
+    const { data: { Users: { nodes: first2 } } } = await runQuery(`{
+      Users(page: { limit: 2, offset: 0 }, order: nickname_ASC) { nodes {
+        id nickname name
+      } }
+    }`)
+    const { data: { Users: { nodes: skip1 } } } = await runQuery(`{
+      Users(page: { limit: 2, offset: 1 }, order: nickname_ASC) { nodes {
+        id nickname name
+      } }
+    }`)
+    expect({first2, skip1}).toMatchSnapshot()
   })
 })

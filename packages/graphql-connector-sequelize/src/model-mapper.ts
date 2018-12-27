@@ -1,8 +1,14 @@
-import { AnyModel, createModelMapper, GeneratedModelMapper, Page } from '@raynode/graphql-connector'
+import { AnyModel, createModelMapper, GeneratedModelMapper, Page, PageInput } from '@raynode/graphql-connector'
 import { capitalize } from 'inflection'
 import * as Sequelize from 'sequelize'
 import { applyParser, createEmptyFilter, ParsedFilter, parser } from './filter-parser'
 import { DataTypes } from './type-guards'
+
+interface FindManyArgs {
+  where: any
+  order: any
+  page: PageInput
+}
 
 // tslint:disable-next-line:no-duplicate-imports
 import { AssociationOptions, DefineAttributeColumnOptions } from 'sequelize'
@@ -122,8 +128,8 @@ export const modelMapper = createModelMapper<DataTypes, Models>((localModel, add
     })
   })
 
-  const findAll = async (include, where, order?) => {
-    const nodes = await model.findAll({ include, where, order })
+  const findAll = async (include, where, page: PageInput, order?) => {
+    const nodes = await model.findAll({ include, where, order, limit: page.limit, offset: page.offset })
     return {
       nodes,
       page: createPage(0, 100, 0),
@@ -180,7 +186,8 @@ export const modelMapper = createModelMapper<DataTypes, Models>((localModel, add
       await model.destroy({ where })
       return deletedItems
     },
-    findMany: async (_, { order, where: { where = {}, include = [] } = {} }) => findAll(include, where, order),
+    findMany: async (_, { order, page, where: { where = {}, include = [] } = {} }: FindManyArgs) =>
+      findAll(include, where, page, order),
     findOne: async (_, { order, where: { where = {}, include = [] } = {} }) => model.findOne({ include, where, order }),
     update: async (_, { data, where: { where, include } }) => {
       await model.update(data, { where })
