@@ -139,6 +139,10 @@ const dataTypeGenerator = <Types, Models>(
       data[name] = fieldType === 'Attribute' ? { type } : { type: model.argsFields.where }
       return data
     }, {}),
+    page: {
+      limit: { type: GraphQLInt },
+      offset: { type: GraphQLInt },
+    },
     where: fields.reduce(
       (where, { name, type, fieldType, model }) => ({
         ...where,

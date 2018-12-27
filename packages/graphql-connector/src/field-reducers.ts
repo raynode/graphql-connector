@@ -1,6 +1,7 @@
 import { GraphQLFieldConfigMap, GraphQLList, GraphQLNonNull, Thunk } from 'graphql'
 import { GeneratorConfiguration } from './configuration'
 import { applyFilterParser } from './filter-field-generator'
+import { PageInput } from './generic-types'
 import { ExtendedModel } from './model'
 import { applyOrderMapper } from './order-mapper'
 
@@ -17,6 +18,7 @@ export const queryFieldReducer = <Types, Models>(
 
   const filterParser = applyFilterParser(configuration.filterParser)(model)
   const orderMapper = applyOrderMapper(configuration.orderMapper)
+  const pageMapper = ({ limit = 100, offset = 0 }: Partial<PageInput> = {}): PageInput => ({ limit, offset })
 
   queryFields[names.fields.findOne] = {
     args: {
@@ -38,15 +40,17 @@ export const queryFieldReducer = <Types, Models>(
 
   queryFields[names.fields.findMany] = {
     args: {
-      [names.arguments.where]: { type: model.argsFields.where },
       [names.arguments.order]: { type: model.argsFields.order },
+      [names.arguments.page]: { type: model.argsFields.page },
+      [names.arguments.where]: { type: model.argsFields.where },
     },
-    resolve: (_, { where, order }, context, info) =>
+    resolve: (_, { order, page, where }, context, info) =>
       model.resolvers.findMany(
         _,
         {
           where: filterParser('where', where),
           order: orderMapper(order),
+          page: pageMapper(page),
         },
         context,
         info,

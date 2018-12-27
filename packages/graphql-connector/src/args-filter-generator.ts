@@ -45,4 +45,8 @@ export const createArgsFields = <Types, Models>(model: ExtendedModel<Types, Mode
     name: names.types.orderType,
     values: buildOrderEnumValues(model),
   }),
+  page: new GraphQLInputObjectType({
+    name: names.types.pageType,
+    fields: () => model.dataTypes.page,
+  }),
 })

@@ -395,6 +395,11 @@ input CommentFilter {
   msg_not_in: [String!]
 }
 
+input CommentPage {
+  limit: Int
+  offset: Int
+}
+
 type Comments implements List {
   nodes: [Comment!]!
   page: Page!
@@ -544,6 +549,11 @@ input PostFilter {
   upvotes_lt: Int
 }
 
+input PostPage {
+  limit: Int
+  offset: Int
+}
+
 type Posts implements List {
   nodes: [Post!]!
   page: Page!
@@ -598,13 +608,13 @@ input PostWhere {
 
 type Query {
   User(where: UserWhere, order: UserSortOrder): User
-  Users(where: UserWhere, order: UserSortOrder): Users!
+  Users(order: UserSortOrder, page: UserPage, where: UserWhere): Users!
   Post(where: PostWhere, order: PostSortOrder): Post
-  Posts(where: PostWhere, order: PostSortOrder): Posts!
+  Posts(order: PostSortOrder, page: PostPage, where: PostWhere): Posts!
   Comment(where: CommentWhere, order: CommentSortOrder): Comment
-  Comments(where: CommentWhere, order: CommentSortOrder): Comments!
+  Comments(order: CommentSortOrder, page: CommentPage, where: CommentWhere): Comments!
   Question(where: QuestionWhere, order: QuestionSortOrder): Question
-  Questions(where: QuestionWhere, order: QuestionSortOrder): Questions!
+  Questions(order: QuestionSortOrder, page: QuestionPage, where: QuestionWhere): Questions!
 }
 
 type Question implements Node {
@@ -630,6 +640,11 @@ input QuestionFilter {
   question_not: String
   question_in: [String!]
   question_not_in: [String!]
+}
+
+input QuestionPage {
+  limit: Int
+  offset: Int
 }
 
 type Questions implements List {
@@ -772,6 +787,11 @@ input UserFilter {
   num_not: Int
   num_gt: Int
   num_lt: Int
+}
+
+input UserPage {
+  limit: Int
+  offset: Int
 }
 
 type Users implements List {

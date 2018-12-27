@@ -16,7 +16,7 @@ export type AssociationFieldType = 'Association'
 export type FieldType = AttributeFieldType | AssociationFieldType
 export type Mutations = 'create' | 'update' | 'delete'
 export type Queries = 'findOne' | 'findMany'
-export type DataTypes = 'type' | 'where' | 'data' | 'create' | 'filter'
+export type DataTypes = 'type' | 'where' | 'data' | 'create' | 'filter' | 'page'
 
 export interface ModelFields {
   type: GraphQLObjectType

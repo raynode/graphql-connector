@@ -8,13 +8,6 @@ import {
   GraphQLObjectType,
 } from 'graphql'
 
-export const PageInputType = new GraphQLInputObjectType({
-  name: 'PageInput',
-  fields: {
-    limit: { type: GraphQLInt },
-    offset: { type: GraphQLInt },
-  },
-})
 export const PageType = new GraphQLObjectType({
   name: 'Page',
   fields: {
